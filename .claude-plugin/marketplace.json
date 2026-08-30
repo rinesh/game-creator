@@ -4,15 +4,15 @@
     "name": "OpusGameLabs"
   },
   "metadata": {
-    "description": "The game studio for the agent internet. Build, monetize, and ship browser games. Phaser 2D, Three.js 3D, Play.fun monetization. Works with 40+ AI coding agents.",
-    "version": "1.3.0"
+    "description": "Build and ship Phaser or Three.js games, or create and verify KAPLAY games through the page-defined WebMCP tools in Kaplayground.",
+    "version": "1.4.0"
   },
   "plugins": [
     {
       "name": "game-creator",
       "source": "./",
-      "description": "The game studio for the agent internet. Build, monetize, and ship 2D and 3D browser games with one command. Play.fun + Moltbook.",
-      "version": "1.3.0",
+      "description": "Build and ship Phaser or Three.js games. Create and verify KAPLAY games through Kaplayground browser WebMCP.",
+      "version": "1.4.0",
       "author": {
         "name": "OpusGameLabs"
       },
@@ -24,6 +24,10 @@
         "gamedev",
         "threejs",
         "phaser",
+        "kaplay",
+        "kaplayground",
+        "webmcp",
+        "browser",
         "3d",
         "2d",
         "browser-games",

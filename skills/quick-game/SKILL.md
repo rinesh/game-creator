@@ -1,7 +1,7 @@
 ---
 name: quick-game
-description: Rapidly scaffold and implement a playable game — no assets, design, audio, deploy, or monetize. Get something on screen fast. Use when the user says "quick game", "fast prototype", "just get something playable", or wants a game without the full pipeline. For the complete pipeline, use make-game instead. Do NOT use for production games (use make-game for the full pipeline).
-argument-hint: "[2d|3d] [game-name] OR [tweet-url]"
+description: Rapidly scaffold and implement a playable Phaser or Three.js game — no assets, design, audio, deploy, or monetize. Get something on screen fast. Use when the user says "quick game", "fast prototype", "just get something playable", or wants a game without the full pipeline. For KAPLAY, Kaplayground, or Kaplayground WebMCP work, use kaplay instead. For the complete pipeline, use make-game. Do NOT use for production games.
+argument-hint: "[2d|3d|kaplay] [game-name] OR [tweet-url]"
 license: MIT
 metadata:
   author: OpusGameLabs
@@ -38,8 +38,10 @@ Build a playable game prototype as fast as possible. This is `/make-game` withou
 
 Parse `$ARGUMENTS` to determine the game concept:
 
-**Direct specification:** `[2d|3d] [game-name]`
-- **Engine**: `2d` (Phaser) or `3d` (Three.js). If not specified, default to `2d`.
+If the arguments explicitly name `kaplay`, Kaplayground, Kaplayground WebMCP, or `rinesh/kaplayground`, load the `kaplay` skill, pass it the game concept, and follow its browser-native editor workflow. Stop here; do not copy a Phaser/Three.js template or start another dev server.
+
+**Direct specification:** `[2d|3d|kaplay] [game-name]`
+- **Engine**: `2d` (Phaser), `3d` (Three.js), or `kaplay` (routed above). If not specified, default to `2d`.
 - **Name**: kebab-case. If not specified, ask the user.
 
 **Tweet URL:** If arguments contain a tweet URL (`x.com/*/status/*`, `twitter.com/*/status/*`, `fxtwitter.com/*/status/*`):

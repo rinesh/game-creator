@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is **game-creator**, the game studio for the agent internet. It provides skills and agents for scaffolding, designing, deploying, and monetizing 2D (Phaser 3) and 3D (Three.js) browser games. QA (build, runtime, visual review, autofix) runs at every step. Monetize with [Play.fun](https://play.fun) (OpenGameProtocol). Works with **40+ AI coding agents** (via `npx skills add`). Share your play.fun URL on [Moltbook](https://www.moltbook.com/).
+This is **game-creator**, the game studio for the agent internet. It provides skills and agents for scaffolding, designing, deploying, and monetizing 2D (Phaser 3) and 3D (Three.js) browser games, plus live KAPLAY iteration through the page-defined WebMCP tools in Kaplayground. The KAPLAY workflow uses `3001.0.19` as its stable fallback while adapting to the active editor version, including v4000 and `master`. QA (build, runtime, visual review, autofix) runs at every step. Monetize with [Play.fun](https://play.fun) (OpenGameProtocol). Works with **40+ AI coding agents** (via `npx skills add`). Share your play.fun URL on [Moltbook](https://www.moltbook.com/).
 
 ## Repository Structure
 
@@ -14,6 +14,7 @@ settings.json              # Default settings (activates game-creator agent)
 skills/
   phaser/SKILL.md          # 2D game patterns (Phaser 3, scene-based, multi-file)
   threejs-game/SKILL.md    # 3D game patterns (Three.js, event-driven)
+  kaplay/SKILL.md          # Active-version KAPLAY + Kaplayground browser WebMCP iteration
   game-assets/SKILL.md     # Pixel art sprites (code-only, no external files)
   game-designer/SKILL.md   # Visual polish (gradients, particles, juice, transitions)
   game-audio/SKILL.md      # Procedural audio (Web Audio API BGM + SFX)
@@ -78,7 +79,7 @@ examples/
 
 ## Architecture Rules
 
-All games built with this plugin follow these mandatory patterns:
+Phaser and Three.js games built by the template pipeline follow these mandatory patterns. KAPLAY projects use the editor layout and component/scene patterns in `skills/kaplay/`; do not force the template directory structure into Kaplayground.
 
 1. **EventBus singleton** — All cross-module communication via pub/sub. Modules never import each other directly. Events use `domain:action` naming (e.g., `bird:flap`, `game:over`).
 
@@ -179,13 +180,13 @@ skills/phaser/
   performance.md              # Optimization tips, texture atlases, object pooling
 ```
 
-**Skills with companion files:** `phaser` (8), `game-qa` (7), `game-audio` (6), `meshyai` (3), `game-assets` (3), `threejs-game` (3+), `make-game` (3).
+**Skills with companion files:** `phaser` (8), `game-qa` (7), `game-audio` (6), `meshyai` (3), `game-assets` (3), `threejs-game` (3+), `make-game` (3), `kaplay` (2).
 
 ## Reference vs User-Invocable Skills
 
 Skills come in two flavors with a deliberate separation of concerns:
 
-- **User-invocable skills** (17) — Triggered by slash commands (e.g., `/add-audio`). These handle the full user-facing workflow: detect the game, load reference skills, run the pipeline, validate output. They have `argument-hint` in frontmatter.
+- **User-invocable skills** (18) — Triggered by slash commands (e.g., `/add-audio`). These handle the full user-facing workflow: detect the game, load reference skills, run the pipeline, validate output. They have `argument-hint` in frontmatter.
 - **Reference skills** (10) — Deep domain knowledge loaded by other skills (or directly via `/load`). They contain patterns, code examples, and conventions but don't drive a workflow themselves.
 
 Four domains have both a reference and a user-invocable skill:
@@ -205,7 +206,7 @@ This separation avoids duplicating domain knowledge across multiple skills. The 
 
 **Add a new user-invocable skill** (slash command): Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `argument-hint`). Body contains the prompt instructions.
 
-**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.3.0/` for Claude Code).
+**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.4.0/` for Claude Code).
 
 **Run the example**: `cd examples/flappy-bird && npm run dev` starts on port 3000.
 
@@ -277,4 +278,4 @@ See `TROUBLESHOOTING.md` for common issues including:
 
 ## Trigger Test Suite
 
-See `tests/trigger-tests.md` for manual test prompts (5-7 per skill) verifying correct trigger behavior. Covers all 17 user-invocable skills plus negative tests for prompts that should NOT trigger any skill.
+See `tests/trigger-tests.md` for manual test prompts (5-7 per skill) verifying correct trigger behavior. Covers all 18 user-invocable skills plus negative tests for prompts that should NOT trigger any skill.

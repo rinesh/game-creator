@@ -2,7 +2,7 @@
 
 **Go from game idea to deployed, monetized browser game in minutes — not hours.**
 
-Tell your AI coding agent "make a space invaders game" and get a fully playable 2D or 3D browser game with pixel art, procedural audio, and automated QA. Deploy instantly to the web. Monetize with [Play.fun](https://play.fun). Share on [Moltbook](https://www.moltbook.com/).
+Tell your AI coding agent "make a space invaders game" and get a fully playable browser game. The Phaser 2D and Three.js 3D template pipeline adds pixel art, procedural audio, automated QA, deployment, and [Play.fun](https://play.fun) monetization. For KAPLAY, create and iterate directly in the active [Kaplayground](https://github.com/rinesh/kaplayground) page through its browser-native WebMCP tools.
 
 Works with **40+ AI coding agents** — Claude Code, Cursor, Windsurf, Cline, and more via `npx skills add`.
 
@@ -33,6 +33,9 @@ npx skills add OpusGameLabs/game-creator -a antigravity
 # Build from a tweet
 /game-creator:make-game https://x.com/user/status/123456
 
+# Open Kaplayground in a WebMCP-capable agent browser, then build or edit its current project
+/game-creator:kaplay "make a coin collector"
+
 # Or run individual steps on an existing game:
 /game-creator:add-assets          # Replace shapes with pixel art sprites
 /game-creator:design-game         # Add visual polish (particles, juice, transitions)
@@ -46,7 +49,7 @@ npx skills add OpusGameLabs/game-creator -a antigravity
 
 ## How It Works
 
-`/make-game` is an orchestrator that delegates all code writing to subagents and runs a QA subagent after every code-modifying step:
+`/make-game` is the Phaser/Three.js orchestrator. It delegates all code writing to subagents and runs a QA subagent after every code-modifying step:
 
 ```
 Step 0  Parse args, create task list                           ← main thread
@@ -60,9 +63,11 @@ Step 5  Monetize with Play.fun                                 ← main thread (
 
 The QA subagent runs 5 phases per step: build check, runtime check (headless Chromium), gameplay verification (iterate client with game-specific actions), architecture validation, and visual review (Playwright MCP screenshots). If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts per step).
 
+`/kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads and replaces editor files through page-defined tools, runs the preview, checks diagnostics and console output, and uses the browser for screenshots plus gameplay input when the preview iframe is controllable. It does not copy a Phaser template or invent a second local project; the active page supplies the KAPLAY tool surface without a separate tool-server setup.
+
 ## Architecture
 
-Every game follows the same architecture, whether 2D or 3D:
+Games created by the Phaser/Three.js template pipeline follow this architecture:
 
 ```
 src/
@@ -114,6 +119,7 @@ src/
 | Command | Description |
 |---------|-------------|
 | `/make-game [2d\|3d] [name]` | Full pipeline: scaffold, pixel art, design, audio, deploy, monetize |
+| `/kaplay [game concept or change]` | Build a game in or edit the open Kaplayground project through browser WebMCP, with preview, diagnostics, console, and browser verification |
 | `/improve-game [focus]` | Deep audit + implement highest-impact improvements |
 | `/design-game [path]` | Audit and improve visual polish |
 | `/add-feature [description]` | Add a gameplay feature following architecture patterns |
@@ -168,17 +174,20 @@ npm run build      # Production build to dist/
 
 Both templates ship with `scripts/verify-runtime.mjs` (headless runtime check), `scripts/iterate-client.js` (action replay + screenshots), `scripts/validate-architecture.mjs` (pattern validator), and `scripts/example-actions.json` (default test actions).
 
+KAPLAY work uses the editor-managed files in Kaplayground instead of a third template. The `kaplay` skill preserves Kaplayground's `main.js`, `kaplay.js`, `assets.js`, `scenes/`, `objects/`, and `utils/` layout, updates files with revision-aware page-defined WebMCP tools, and verifies the live preview in the same browser tab.
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| 2D Engine | Phaser 3 (`^3.90.0`) |
+| 2D Engines | Phaser 3 (`^3.90.0`); KAPLAY (`3001.0.19` stable baseline, with the active Kaplayground version discovered at runtime) |
 | 3D Engine | Three.js (`^0.183.0`) |
+| Live editor API | [Kaplayground](https://github.com/rinesh/kaplayground) browser WebMCP, surfaced by the active page |
 | Audio | Strudel.cc (`@strudel/web ^1.3.0`) — AGPL-3.0 |
 | Build | Vite (`^7.3.1`) |
 | Testing | Playwright (`^1.58.0`) + axe-core (`^4.11.0`) |
 | Monetization | [Play.fun](https://play.fun) (OpenGameProtocol) |
-| Language | JavaScript ES modules |
+| Language | JavaScript ES modules; Kaplayground also permits TypeScript supporting files |
 
 ## Quality Assurance
 
@@ -191,6 +200,8 @@ QA is built into every code-modifying step of the pipeline via a dedicated QA su
 5. **Visual** — Playwright MCP screenshots check entity visibility, safe zone compliance, button labels
 
 If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts). Problems are caught when introduced, not at the end of the pipeline.
+
+For KAPLAY, the equivalent gate is browser-backed: run the Kaplayground preview, require clean diagnostics, inspect fresh console entries, and use the same tab to review a screenshot. Exercise the requested gameplay when the browser can control the preview iframe, and otherwise state that behavioral verification remains incomplete.
 
 ## Play.fun Integration
 

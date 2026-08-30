@@ -1,6 +1,6 @@
 ---
 name: make-game
-description: Full guided pipeline — scaffold, design, audio, deploy, and monetize a browser game from scratch. Use when the user says "make a game", "build me a game", "create a new game", "make a 2D/3D game", or provides a game concept to build. Do NOT use for modifying existing games (use add-feature or improve-game instead).
+description: Full guided Phaser or Three.js pipeline — scaffold, design, audio, deploy, and monetize a browser game from scratch. Use when the user says "make a game", "build me a game", "create a new game", "make a 2D/3D game", or provides a game concept to build. Do NOT use for KAPLAY, Kaplayground, or Kaplayground WebMCP work (use kaplay), or for modifying existing games (use add-feature or improve-game).
 argument-hint: "[2d|3d] [game-name] OR [tweet-url]"
 license: MIT
 metadata:
@@ -12,6 +12,8 @@ metadata:
 # Make Game (Full Pipeline)
 
 Build a complete browser game from scratch, step by step. This command walks you through the entire pipeline — from an empty folder to a deployed, monetized game. No game development experience needed.
+
+If the arguments or user request explicitly name KAPLAY, Kaplayground, Kaplayground WebMCP, or `rinesh/kaplayground`, load the `kaplay` skill and follow its browser-native live editor workflow instead, then stop this template pipeline. Do not copy a Phaser template into a Kaplayground task.
 
 **What you'll get:**
 1. A fully scaffolded game project with clean architecture (delta capping, object pooling, resource disposal)

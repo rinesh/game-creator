@@ -45,6 +45,23 @@ Manual test prompts to verify skills trigger correctly. Run each prompt against 
 
 ---
 
+## kaplay
+
+**Should trigger:**
+- "build a coin collector in KAPLAY"
+- "use rinesh/kaplayground WebMCP to edit the current game"
+- "make a platformer in the open Kaplayground project"
+- "fix the current Kaplayground preview"
+- "iterate on this KAPLAY game with the page-defined browser tools"
+
+**Should NOT trigger:**
+- "make a Phaser platformer" → `make-game`
+- "build a Three.js game" → `make-game`
+- "what is KAPLAY?" → (no skill; informational)
+- "change the WebMCP adapter in rinesh/kaplayground" → (ordinary repository work)
+
+---
+
 ## improve-game
 
 **Should trigger:**

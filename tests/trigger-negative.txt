@@ -17,6 +17,10 @@ explain how Docker containers work
 set up a PostgreSQL database
 create a Kubernetes deployment
 
+# Informational KAPLAY request (no live game work)
+what is KAPLAY
+change the WebMCP adapter in rinesh/kaplayground
+
 # Adjacent but wrong
 create an NFT collection
 build a blockchain app

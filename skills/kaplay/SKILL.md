@@ -3,10 +3,10 @@ name: kaplay
 description: Create, edit, debug, and verify KAPLAY games in a WebMCP-enabled KAPLAYGROUND browser page. Use when the user asks to build or change the open KAPLAYGROUND project, work on a KAPLAY game through WebMCP, or iterate on its live preview. Do not use for informational KAPLAY questions, changes to the KAPLAYGROUND WebMCP implementation itself, Phaser, Three.js, or unrelated browser-game work.
 argument-hint: "[game concept or change]"
 license: MIT
-compatibility: Requires a browser tab whose KAPLAYGROUND document exposes the page-defined WebMCP tools; browser iframe control is required for behavioral verification beyond build, console, and the initial frame.
+compatibility: Requires a browser tab whose KAPLAYGROUND document exposes the canonical fifteen page-defined WebMCP tools; browser iframe control is required for behavioral verification beyond build, console, runtime inspection, and the initial frame.
 metadata:
   author: OpusGameLabs
-  version: 1.4.0
+  version: 1.4.1
   tags: [game, 2d, kaplay, kaplayground, webmcp, browser-game]
 ---
 
@@ -25,21 +25,23 @@ Use KAPLAY `3001.0.19` as the conservative stable fallback, then treat `kaplaygr
 
 Use the host's browser-control capability to obtain the intended KAPLAYGROUND tab, then fetch its WebMCP tools and call only names the page advertises. The expected prefix is `kaplayground_`, with underscore-separated names such as `kaplayground_get_project` and `kaplayground_replace_file`.
 
-Use only the tools advertised by the active page. The canonical surface has no separate stdio server and no page tool for arbitrary filesystem access, command execution, partial patching, screenshots, or server-side console filtering. If the page does not expose WebMCP, report that browser/page capability as the blocker instead of silently falling back to another MCP transport or creating another local project.
+Use only the tools advertised by the active page. The canonical surface has fifteen tools for project metadata, files, asset metadata, persistence, preview control, runtime inspection, diagnostics, and run-scoped console output. It has no separate stdio server and no page tool for arbitrary filesystem access, command execution, partial patching, screenshots, project creation or selection, rename, export, or asset upload. If the page does not expose the canonical WebMCP surface, report the missing browser/page capability instead of silently falling back to another MCP transport or creating another local project.
 
 ## Live Iteration Workflow
 
-1. **Discover and inspect.** Fetch the current tab's WebMCP tools. Call `kaplayground_get_project`, then `kaplayground_list_files`, and read every relevant file with `kaplayground_read_file`. Record the selected KAPLAY version, project mode (`ex` means Example and `pj` means Project), preview state, `hasUnsavedChanges`, and each file's returned revision. Neither mode proves that the page has a persistent project key. Never replace a file whose read was truncated.
+1. **Discover and inspect.** Fetch the current tab's WebMCP tools and require the canonical fifteen-tool surface described in [kaplayground-webmcp.md](kaplayground-webmcp.md). Call `kaplayground_get_project`, then `kaplayground_list_files`, and read every relevant file with `kaplayground_read_file`. Call `kaplayground_list_assets` when existing art, sound, or fonts may affect the change. Record `projectId`, the opaque `projectRevision`, `storageState`, the selected KAPLAY version, project mode (`ex` means Example and `pj` means Project), preview state, `hasUnsavedChanges`, and each file's content revision. Never replace a truncated read.
 
 2. **Define the smallest playable change.** For a new game, implement input, the core mechanic, scoring or progress, a fail or completion state, and restart. Keep the first pass to one scene and one mechanic. For an existing game, change only what the request requires.
 
-3. **Edit with optimistic concurrency.** Compute the complete updated file content locally and call `kaplayground_replace_file` with the exact revision from the latest read. Use `runPreview: false` until a multi-file edit is internally consistent. Use `kaplayground_create_file` only when it is advertised and the requested path fits its editor restrictions. Treat `kaplayground_remove_file` as destructive and use it only when the user requested that removal and the host's confirmation policy allows it. If a revision conflict occurs, re-read and reapply the change to the new content; after a repeated conflict, stop and ask the user to pause their edits.
+3. **Edit with both revision guards.** Compute complete updated file content locally and call `kaplayground_replace_file` with `expectedRevision` from the latest file read and `expectedProjectRevision` from `get_project`. Pass that same current project revision to create, remove, and save operations. Set `runPreview: false` on every mutation, then run the preview separately so a successful write cannot be confused with a failed build. Use `kaplayground_create_file` only for a supported editor path. Treat `kaplayground_remove_file` as destructive and use it only when the user requested that removal and the host's confirmation policy allows it. On a file revision conflict, re-read and reapply the change; on a project revision conflict, restart inspection because the active project changed. Stop after a repeated conflict and ask the user to pause their edits.
 
-4. **Run and collect fresh evidence.** Before running, call `kaplayground_get_console` with the largest practical limit and retain its newest timestamp. When the baseline list is empty, treat every subsequently returned entry as fresh rather than comparing timestamps from different clocks. Call `kaplayground_run_preview`, or set `runPreview: true` on the final write. The page has no readiness event, so poll diagnostics and console briefly for no more than 5 seconds. `kaplayground_get_diagnostics` reports current Monaco markers; when a baseline timestamp exists, treat only newer console entries as evidence from this run.
+4. **Run and collect run-scoped evidence.** Put project previews in a landscape layout, then call `kaplayground_run_preview` and retain its acknowledged `runId`. The call resolves only after the matching sandbox loads the module or rejects with a build/runtime load error, so do not use timestamp baselines or infer readiness from a delay. Call `kaplayground_get_diagnostics` and require `available: true`; call `kaplayground_get_console` with that exact `runId` and require `available: true`. Fix current error diagnostics and error entries for the run. Treat `truncated` or a nonzero `droppedCount` as incomplete console evidence and disclose the limitation.
 
-5. **Inspect the rendered game.** Take a browser screenshot of the same tab; WebMCP does not provide a screenshot tool. Check that the player, hazards or goals, instructions, score or progress, and restart affordance are visible and legible. An initial frame proves rendering, not gameplay.
+5. **Inspect the rendered game.** Call `kaplayground_inspect_preview`, require its `runId` to match the run, and use its `available`, scene, pause state, viewport, object count, and bounded object snapshots as runtime evidence. Take a browser screenshot of the same tab because WebMCP does not provide a screenshot tool. Check that the player, hazards or goals, instructions, score or progress, and restart affordance are visible and legible. An inspection or initial frame proves rendering and shallow state, not gameplay.
 
-6. **Exercise behavior when possible.** Click or focus the preview canvas before sending keys, then use browser input against the preview iframe to exercise the main controls, collision or scoring path, failure state, and restart. Read `window.render_game_to_text()` when iframe evaluation is separately available; otherwise use visible state changes, fresh transition logs, and screenshots as behavioral evidence. If the browser cannot operate the preview, state that build, console, and the initial frame were verified while gameplay behavior remains unexercised.
+6. **Exercise behavior when possible.** Click or focus the preview canvas before sending keys, then use browser input against the preview iframe to exercise the main controls, collision or scoring path, failure state, and restart. Re-read inspection state and the same run's console output after meaningful transitions. Read `window.render_game_to_text()` when iframe evaluation is separately available; otherwise use visible state changes, run-scoped transition logs, and screenshots as behavioral evidence. If the browser cannot operate the preview, state that build, diagnostics, console, runtime inspection, and the initial frame were verified while gameplay behavior remains unexercised.
+
+7. **Persist and confirm.** Call `kaplayground_save_project` with the current `expectedProjectRevision`, including for a transient project. Record the returned non-null `projectId` and `storageState: "autosaved"`, then call `kaplayground_get_project` again and confirm that the same project revision remains active. Report final mode, project ID, storage state, and `hasUnsavedChanges` exactly; do not claim export, rename, or another unsupported project-management action.
 
 ## KAPLAY Implementation Rules
 
@@ -58,9 +60,10 @@ Use only the tools advertised by the active page. The canonical surface has no s
 
 Do not report completion until all of these are true:
 
-- The page advertised the required WebMCP tools, and every intended edit succeeded with a current revision.
-- A final run produced no current error diagnostics or new runtime-error console entries.
+- The page advertised the canonical fifteen WebMCP tools, and every intended edit succeeded with current project and file revisions.
+- A final `run_preview` returned a `runId`; diagnostics and run-scoped console capture were available and contained no current error diagnostics or runtime-error entries. Any truncation or capture eviction is disclosed instead of being called exhaustively clean.
+- `inspect_preview` referred to the same `runId`, and its availability and bounded result were reported accurately.
 - A browser screenshot shows a coherent initial frame with readable controls and state.
 - When browser iframe control was available, the core mechanic and restart were exercised and their resulting state was observed.
 - When behavioral tools were unavailable, the handoff limits its verification claim accordingly.
-- `kaplayground_get_project` was checked after the edits, and the handoff reports `mode` and `hasUnsavedChanges` exactly. Because WebMCP does not reveal the persistent project key, tell the user to save through the KAPLAYGROUND UI unless the visible page independently confirms the work is saved. WebMCP does not expose project creation, project selection, project rename, explicit save, export, or asset-upload tools.
+- `save_project` succeeded for the current project revision, and a final `get_project` confirmed the same project. The handoff reports `mode`, `projectId`, `storageState`, and `hasUnsavedChanges` exactly. WebMCP does not expose project creation, project selection, rename, export, or asset upload.

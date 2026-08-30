@@ -1,7 +1,7 @@
 {
   "name": "game-creator",
   "description": "Build and ship Phaser or Three.js games, or create and verify KAPLAY games through the page-defined WebMCP tools in Kaplayground.",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": {
     "name": "OpusGameLabs"
   },

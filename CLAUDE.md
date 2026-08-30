@@ -206,7 +206,7 @@ This separation avoids duplicating domain knowledge across multiple skills. The 
 
 **Add a new user-invocable skill** (slash command): Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `argument-hint`). Body contains the prompt instructions.
 
-**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.4.0/` for Claude Code).
+**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.4.1/` for Claude Code).
 
 **Run the example**: `cd examples/flappy-bird && npm run dev` starts on port 3000.
 

@@ -32,7 +32,7 @@ The agent expects:
 
 ## KAPLAY Routing
 
-If the engine is `kaplay` or the request names KAPLAY, Kaplayground, `rinesh/kaplayground`, or Kaplayground WebMCP, load the `kaplay` skill and follow it as the complete workflow. Do not continue with the template-copy pipeline below: the active Kaplayground page owns the source files and exposes project- and file-revision guards, asset metadata, persistence, acknowledged preview runs, runtime inspection, diagnostics, and run-scoped console tools through WebMCP, while the browser supplies screenshots and gameplay input when it can control the preview iframe. Return only after the `kaplay` completion gate passes or the skill reports a concrete browser/WebMCP blocker.
+If the engine is `kaplay` or the request names KAPLAY, Kaplayground, `rinesh/kaplayground`, or Kaplayground WebMCP, load the `kaplay` skill and follow it as the complete workflow. Do not continue with the template-copy pipeline below: the active Kaplayground page owns the source files and exposes a live agent guide, requested example switching, project and Asset Brew metadata, project- and file-revision guards, persistence, acknowledged preview runs, runtime inspection, diagnostics, and run-scoped console tools through WebMCP, while the browser supplies screenshots and gameplay input when it can control the preview iframe. Return only after the `kaplay` completion gate passes or the skill reports a concrete browser/WebMCP blocker.
 
 ## Orchestration Model
 

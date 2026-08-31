@@ -3,7 +3,7 @@
     "gh-pages": "^6.3.0"
   },
   "name": "game-creator",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "The game studio for the agent internet. Build, monetize, and ship Phaser and Three.js games, or create and verify KAPLAY games through Kaplayground browser WebMCP.",
   "main": "index.js",
   "directories": {

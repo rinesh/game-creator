@@ -82,7 +82,7 @@ loadSprite("bean", "/sprites/bean.png");
 loadSound("score", "/sounds/score.mp3");
 ```
 
-Only use paths already present in the current project or confirmed in Kaplayground. For a new prototype, primitives are safer than guessing asset paths. Call `play("score")` from a meaningful interaction; browsers may defer audio until the player has interacted with the page.
+Only use paths already present in the current project or exact loader code returned by Kaplayground's Asset Brew search. For a new prototype without a suitable catalog match, primitives are safer than guessing asset paths. Call `play("score")` from a meaningful interaction; browsers may defer audio until the player has interacted with the page.
 
 ## Single-File Starter
 

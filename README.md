@@ -63,7 +63,7 @@ Step 5  Monetize with Play.fun                                 ← main thread (
 
 The QA subagent runs 5 phases per step: build check, runtime check (headless Chromium), gameplay verification (iterate client with game-specific actions), architecture validation, and visual review (Playwright MCP screenshots). If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts per step).
 
-`/kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads and mutates editor files with project- and file-level revision guards, lists existing asset metadata, runs an acknowledged preview, checks available diagnostics and run-scoped console output, inspects bounded runtime state, and explicitly persists the project. It uses the browser for screenshots plus gameplay input when the preview iframe is controllable. It does not copy a Phaser template or invent a second local project; the active page supplies the KAPLAY tool surface without a separate tool-server setup.
+`/kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads the page-owned agent guide, can switch to a requested ready-made example without silently discarding work, mutates editor files with project- and file-level revision guards, lists project assets, and searches Asset Brew for exact sprite, sound, and font loader code. It then runs an acknowledged preview, checks available diagnostics and run-scoped console output, inspects bounded runtime state, and explicitly persists the project. It uses the browser for screenshots plus gameplay input when the preview iframe is controllable, without copying a template or configuring a separate tool server.
 
 ## Architecture
 
@@ -119,7 +119,7 @@ src/
 | Command | Description |
 |---------|-------------|
 | `/make-game [2d\|3d] [name]` | Full pipeline: scaffold, pixel art, design, audio, deploy, monetize |
-| `/kaplay [game concept or change]` | Build or edit the open Kaplayground project through browser WebMCP, with revision-safe writes, persistence, preview inspection, diagnostics, run-scoped console, and browser verification |
+| `/kaplay [game concept or change]` | Build or edit in Kaplayground through browser WebMCP, with ready-made examples, Asset Brew, revision-safe writes, persistence, and browser-backed verification |
 | `/improve-game [focus]` | Deep audit + implement highest-impact improvements |
 | `/design-game [path]` | Audit and improve visual polish |
 | `/add-feature [description]` | Add a gameplay feature following architecture patterns |
@@ -174,7 +174,7 @@ npm run build      # Production build to dist/
 
 Both templates ship with `scripts/verify-runtime.mjs` (headless runtime check), `scripts/iterate-client.js` (action replay + screenshots), `scripts/validate-architecture.mjs` (pattern validator), and `scripts/example-actions.json` (default test actions).
 
-KAPLAY work uses the editor-managed files in Kaplayground instead of a third template. The `kaplay` skill preserves Kaplayground's `main.js`, `kaplay.js`, `assets.js`, `scenes/`, `objects/`, and `utils/` layout, updates files with revision-aware page-defined WebMCP tools, and verifies the live preview in the same browser tab.
+KAPLAY work uses the editor-managed files in Kaplayground instead of a third local template. The `kaplay` skill can open a requested bundled example, preserves Kaplayground's `main.js`, `kaplay.js`, `assets.js`, `scenes/`, `objects/`, and `utils/` layout, reuses project assets or exact Asset Brew loader code, updates files with revision-aware page-defined WebMCP tools, and verifies the live preview in the same browser tab.
 
 ## Tech Stack
 

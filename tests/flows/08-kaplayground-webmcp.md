@@ -13,7 +13,7 @@ Test that the KAPLAY skill edits the project currently open in a WebMCP-enabled 
 
 ## Test Prompt
 
-"/kaplay replace the clean starter with a suitable ready-made example, then build a top-down coin collector with WASD and arrow controls, a 30-second timer, and R to restart. Use an Asset Brew character sprite and collection sound."
+"$kaplay replace the clean starter with a suitable ready-made example, then build a top-down coin collector with WASD and arrow controls, a 30-second timer, and R to restart. Use an Asset Brew character sprite and collection sound, and leave the result disposable."
 
 ## Steps
 
@@ -49,7 +49,8 @@ Test that the KAPLAY skill edits the project currently open in a WebMCP-enabled 
 - [ ] When browser iframe input is available, clicks or focuses the preview canvas before exercising movement, collection, timeout, and restart, then captures same-run inspection state, transition logs, and screenshots.
 - [ ] When iframe evaluation is separately available, also observes state through `render_game_to_text()`; it does not require evaluation merely because input works.
 - [ ] When iframe control is unavailable, says that source, available diagnostics, same-run console output, bounded runtime inspection, and the initial frame were verified while input, collision, scoring, and restart remain unexercised.
-- [ ] Calls `kaplayground_save_project` with the current project revision, records the returned project ID and autosaved state, then calls `kaplayground_get_project` again and reports `mode`, `projectId`, `storageState`, and `hasUnsavedChanges` exactly.
+- [ ] Calls `kaplayground_get_project` after verification and, because the prompt explicitly keeps the replacement example disposable, does not call `kaplayground_save_project`; it reports `mode`, `projectId: null`, `storageState: "transient"`, and `hasUnsavedChanges` exactly.
+- [ ] In a separate variant that edits an already autosaved project without opening an example, calls `kaplayground_save_project` with the current project revision before the final `get_project`, then reports the returned project ID and autosaved state exactly.
 
 ## Success Criteria
 
@@ -57,7 +58,7 @@ Test that the KAPLAY skill edits the project currently open in a WebMCP-enabled 
 - [ ] The page-owned guide was consulted, the requested example switch used an exact returned key, and all later calls use the replacement project's revision.
 - [ ] The requested sprite and sound use exact Asset Brew loader code, with no fabricated catalog metadata, path, URL, or asset mutation.
 - [ ] The final run has available diagnostics and available same-run console capture with no current errors; incomplete capture is disclosed.
-- [ ] Runtime inspection, persistence, and final project metadata all refer to the intended project/run.
+- [ ] Runtime inspection, intent-preserving persistence behavior, and final project metadata all refer to the intended project/run.
 - [ ] Verification claims match the available evidence.
 - [ ] No separate MCP server, bridge credential, unadvertised project identifier, or unrelated local project is introduced.
 

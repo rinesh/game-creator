@@ -18,21 +18,22 @@
     "sharp": "^0.34.5"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:skills",
+    "test:skills": "node scripts/validate-kaplay-skill.mjs",
     "build:site": "node site/build.js",
     "build:gallery": "node site/build.js",
     "capture:thumbnails": "node site/capture-screenshots.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpusGameLabs/game-creator.git"
+    "url": "git+https://github.com/rinesh/game-creator.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/OpusGameLabs/game-creator/issues"
+    "url": "https://github.com/rinesh/game-creator/issues"
   },
-  "homepage": "https://github.com/OpusGameLabs/game-creator#readme"
+  "homepage": "https://github.com/rinesh/game-creator#readme"
 }

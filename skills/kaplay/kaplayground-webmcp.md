@@ -87,11 +87,11 @@ Console capture is run-scoped and stays active even when the visible console pan
 6. In landscape layout, call `run_preview` separately and retain its acknowledged `runId`. Require available diagnostics and available console output filtered to that run; fix the first causal error, then repeat with fresh file reads where needed.
 7. Call `inspect_preview`, compare its `runId` with the run, and interpret `available` before using the shallow snapshot as evidence.
 8. Inspect a browser screenshot of the actual page. Click or focus the preview canvas before exercising controls, then re-check the same run's inspection, console, and screenshots. Use `render_game_to_text()` only when iframe evaluation is separately available.
-9. Call `save_project` with the current project revision, then `get_project` again. Report mode (`ex` or `pj`), project ID, storage state, and `hasUnsavedChanges` exactly.
+9. Preserve the active project's persistence intent. Flush an autosaved project with `save_project`; save a transient project only when the user asks to keep it. Then call `get_project` again and report mode (`ex` or `pj`), nullable project ID, storage state, and `hasUnsavedChanges` exactly.
 
 ## Persistence and Missing Operations
 
-`get_project` makes persistence explicit: `projectId: null` with `storageState: "transient"` means the open work has no persistent project key, while `storageState: "autosaved"` identifies a persisted project. `save_project` creates the persistent ID for transient work or flushes an existing autosaved project and returns the ID. WebMCP can replace the active work with a bundled example, but it still provides no tool for arbitrary saved-project creation or selection, rename, export, or asset upload. Never claim one of those unsupported operations occurred.
+`get_project` makes persistence explicit: `projectId: null` with `storageState: "transient"` means the open work has no persistent project key, while `storageState: "autosaved"` identifies a persisted project. `save_project` creates the persistent ID for transient work or flushes an existing autosaved project and returns the ID. Flush an autosaved project after verified edits. Leave transient work disposable unless the user asks to keep it, because saving changes its persistence semantics and creates a project ID. WebMCP can replace the active work with a bundled example, but it still provides no tool for arbitrary saved-project creation or selection, rename, export, or asset upload. Never claim one of those unsupported operations occurred.
 
 ## Failure Handling
 

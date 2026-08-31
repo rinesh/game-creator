@@ -1,11 +1,9 @@
 ---
 name: kaplay
 description: Create, edit, debug, and verify KAPLAY games in a WebMCP-enabled KAPLAYGROUND browser page. Use when the user asks to build or change the open KAPLAYGROUND project, work on a KAPLAY game through WebMCP, or iterate on its live preview. Do not use for informational KAPLAY questions, changes to the KAPLAYGROUND WebMCP implementation itself, Phaser, Three.js, or unrelated browser-game work.
-argument-hint: "[game concept or change]"
 license: MIT
-compatibility: Requires a browser tab whose KAPLAYGROUND document exposes the canonical nineteen page-defined WebMCP tools; browser iframe control is required for behavioral verification beyond build, console, runtime inspection, and the initial frame.
 metadata:
-  author: OpusGameLabs
+  author: rinesh
   version: 1.4.2
   tags: [game, 2d, kaplay, kaplayground, webmcp, browser-game]
 ---
@@ -43,7 +41,7 @@ Use only the tools advertised by the active page. The canonical surface has nine
 
 7. **Exercise behavior when possible.** Click or focus the preview canvas before sending keys, then use browser input against the preview iframe to exercise the main controls, collision or scoring path, failure state, and restart. Re-read inspection state and the same run's console output after meaningful transitions. Read `window.render_game_to_text()` when iframe evaluation is separately available; otherwise use visible state changes, run-scoped transition logs, and screenshots as behavioral evidence. If the browser cannot operate the preview, state that build, diagnostics, console, runtime inspection, and the initial frame were verified while gameplay behavior remains unexercised.
 
-8. **Persist and confirm.** Call `kaplayground_save_project` with the current `expectedProjectRevision`, including for a transient project. Record the returned non-null `projectId` and `storageState: "autosaved"`, then call `kaplayground_get_project` again and confirm that the same project revision remains active. Report final mode, project ID, storage state, and `hasUnsavedChanges` exactly; do not claim export, rename, arbitrary saved-project selection, or another unsupported project-management action.
+8. **Preserve persistence intent and confirm.** If the active project is already autosaved, call `kaplayground_save_project` with the current `expectedProjectRevision` after verification to flush it. If the active project is transient, call `save_project` only when the user asks to keep or save it; otherwise leave it transient. Call `kaplayground_get_project` again in either case and confirm that the same project revision remains active. Report final mode, nullable project ID, storage state, and `hasUnsavedChanges` exactly; do not claim export, rename, arbitrary saved-project selection, or another unsupported project-management action.
 
 ## KAPLAY Implementation Rules
 
@@ -69,4 +67,4 @@ Do not report completion until all of these are true:
 - A browser screenshot shows a coherent initial frame with readable controls and state.
 - When browser iframe control was available, the core mechanic and restart were exercised and their resulting state was observed.
 - When behavioral tools were unavailable, the handoff limits its verification claim accordingly.
-- `save_project` succeeded for the current project revision, and a final `get_project` confirmed the same project. The handoff reports `mode`, `projectId`, `storageState`, and `hasUnsavedChanges` exactly. WebMCP can open a bundled example but does not expose arbitrary saved-project creation or selection, rename, export, or asset upload.
+- A final `get_project` confirmed the same project revision and the handoff reports `mode`, nullable `projectId`, `storageState`, and `hasUnsavedChanges` exactly. For an autosaved project or an explicit request to keep transient work, `save_project` succeeded first; otherwise the transient project remained disposable. WebMCP can open a bundled example but does not expose arbitrary saved-project creation or selection, rename, export, or asset upload.

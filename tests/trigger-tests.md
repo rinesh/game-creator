@@ -4,7 +4,7 @@ Manual test prompts to verify skills trigger correctly. Run each prompt against 
 
 ## How to Use
 
-1. Install the plugin: `npx skills add OpusGameLabs/game-creator`
+1. Install this fork: `npx skills add rinesh/game-creator`
 2. For each test case, enter the prompt in your AI coding agent
 3. Verify the correct skill loads (check the skill name in the agent's response)
 4. Mark pass/fail

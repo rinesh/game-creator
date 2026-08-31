@@ -6,35 +6,45 @@ Tell your AI coding agent "make a space invaders game" and get a fully playable 
 
 Works with **40+ AI coding agents** — Claude Code, Cursor, Windsurf, Cline, and more via `npx skills add`.
 
-**Owner**: [OpusGameLabs](https://github.com/OpusGameLabs)
+**Maintainer**: [rinesh](https://github.com/rinesh). Based on [OpusGameLabs/game-creator](https://github.com/OpusGameLabs/game-creator).
 
 ## Install
 
+Install this fork so the KAPLAY skill is included:
+
 ```bash
-npx skills add OpusGameLabs/game-creator
+npx skills add rinesh/game-creator
 ```
 
 Target a specific agent:
 
 ```bash
-npx skills add OpusGameLabs/game-creator -a claude-code
-npx skills add OpusGameLabs/game-creator -a cursor
-npx skills add OpusGameLabs/game-creator -a codex
-npx skills add OpusGameLabs/game-creator -a antigravity
+npx skills add rinesh/game-creator -a claude-code
+npx skills add rinesh/game-creator -a cursor
+npx skills add rinesh/game-creator -a codex
+npx skills add rinesh/game-creator -a antigravity
 ```
+
+For Codex, you can install only the KAPLAY skill with the built-in installer. Enter this in Codex, not in a shell:
+
+```text
+$skill-installer Install the kaplay skill from https://github.com/rinesh/game-creator/tree/main/skills/kaplay
+```
+
+Codex can then select it automatically from your request, through `/skills`, or through an explicit `$kaplay` mention.
 
 ## Quick Start
 
-```bash
+```text
+# In Codex, open Kaplayground in the controllable browser, then invoke the skill
+$kaplay make a coin collector
+
 # Build a complete 2D game (scaffold → pixel art → design → audio → deploy → monetize)
 # QA subagent runs after every step (build, runtime, gameplay, architecture, visual)
 /game-creator:make-game 2d my-game
 
 # Build from a tweet
 /game-creator:make-game https://x.com/user/status/123456
-
-# Open Kaplayground in a WebMCP-capable agent browser, then build or edit its current project
-/game-creator:kaplay "make a coin collector"
 
 # Or run individual steps on an existing game:
 /game-creator:add-assets          # Replace shapes with pixel art sprites
@@ -63,7 +73,7 @@ Step 5  Monetize with Play.fun                                 ← main thread (
 
 The QA subagent runs 5 phases per step: build check, runtime check (headless Chromium), gameplay verification (iterate client with game-specific actions), architecture validation, and visual review (Playwright MCP screenshots). If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts per step).
 
-`/kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads the page-owned agent guide, can switch to a requested ready-made example without silently discarding work, mutates editor files with project- and file-level revision guards, lists project assets, and searches Asset Brew for exact sprite, sound, and font loader code. It then runs an acknowledged preview, checks available diagnostics and run-scoped console output, inspects bounded runtime state, and explicitly persists the project. It uses the browser for screenshots plus gameplay input when the preview iframe is controllable, without copying a template or configuring a separate tool server.
+`$kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads the page-owned agent guide, can switch to a requested ready-made example without silently discarding work, mutates editor files with project- and file-level revision guards, lists project assets, and searches Asset Brew for exact sprite, sound, and font loader code. It then runs an acknowledged preview, checks available diagnostics and run-scoped console output, and inspects bounded runtime state. After verification, it flushes an existing saved project; a transient example remains disposable unless the user asks to keep it. It uses the browser for screenshots plus gameplay input when the preview iframe is controllable, without copying a template or configuring a separate tool server.
 
 ## Architecture
 
@@ -114,12 +124,12 @@ src/
 | `playdotfun` | Play.fun (OpenGameProtocol) — SDK, API, auth, leaderboards |
 | `fetch-tweet` | Fetch tweet content for tweet-to-game conversion |
 
-### Slash Commands (user-invocable)
+### User-invocable workflows
 
 | Command | Description |
 |---------|-------------|
 | `/make-game [2d\|3d] [name]` | Full pipeline: scaffold, pixel art, design, audio, deploy, monetize |
-| `/kaplay [game concept or change]` | Build or edit in Kaplayground through browser WebMCP, with ready-made examples, Asset Brew, revision-safe writes, persistence, and browser-backed verification |
+| `$kaplay [game concept or change]` in Codex | Build or edit in Kaplayground through browser WebMCP, with ready-made examples, Asset Brew, revision-safe writes, intent-preserving persistence, and browser-backed verification |
 | `/improve-game [focus]` | Deep audit + implement highest-impact improvements |
 | `/design-game [path]` | Audit and improve visual polish |
 | `/add-feature [description]` | Add a gameplay feature following architecture patterns |
@@ -129,7 +139,7 @@ src/
 | `/qa-game [path]` | Add Playwright QA tests |
 | `/review-game [path]` | Code review for architecture + best practices |
 
-All commands are prefixed with `game-creator:` when installed as a plugin (e.g., `/game-creator:make-game`).
+On hosts that expose namespaced slash commands, slash-command workflows are prefixed with `game-creator:` (for example, `/game-creator:make-game`). Codex skills use `$skill-name` mentions instead.
 
 ## Agents
 
@@ -201,7 +211,7 @@ QA is built into every code-modifying step of the pipeline via a dedicated QA su
 
 If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts). Problems are caught when introduced, not at the end of the pipeline.
 
-For KAPLAY, the equivalent gate is browser-backed: run the Kaplayground preview, require available clean diagnostics, inspect console entries for the acknowledged run ID, compare bounded runtime inspection against that run, explicitly save the project, and use the same tab to review a screenshot. Exercise the requested gameplay when the browser can control the preview iframe, and otherwise state that behavioral verification remains incomplete.
+For KAPLAY, the equivalent gate is browser-backed: run the Kaplayground preview, require available clean diagnostics, inspect console entries for the acknowledged run ID, compare bounded runtime inspection against that run, preserve the project's persistence intent, and use the same tab to review a screenshot. Flush an existing saved project after verification, but leave a transient example disposable unless the user asks to keep it. Exercise the requested gameplay when the browser can control the preview iframe, and otherwise state that behavioral verification remains incomplete.
 
 ## Play.fun Integration
 

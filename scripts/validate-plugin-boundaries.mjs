@@ -32,6 +32,7 @@ const packageMetadata = json("package.json");
 const claudePlugin = json(".claude-plugin/plugin.json");
 const claudeMarketplace = json(".claude-plugin/marketplace.json");
 const codexMarketplace = json(".agents/plugins/marketplace.json");
+const repositoryAgents = read("AGENTS.md");
 const readme = read("README.md");
 const gameCreatorAgent = read("agents/game-creator.md");
 const makeGame = read("skills/make-game/SKILL.md");
@@ -64,12 +65,20 @@ const aggregateEntry = codexMarketplace.plugins?.find(
   (entry) => entry.name === "kaplayground",
 );
 check(Boolean(aggregateEntry), "Codex marketplace must advertise kaplayground");
-const unsupportedAggregateFields = Object.keys(aggregateEntry ?? {}).filter(
+const repositoryDisallowedAggregateFields = Object.keys(aggregateEntry ?? {}).filter(
   (field) => !["name", "source", "policy", "category"].includes(field),
 );
 check(
-  unsupportedAggregateFields.length === 0,
-  `Kaplayground aggregate entry has unsupported fallback fields: ${unsupportedAggregateFields.join(", ")}`,
+  repositoryDisallowedAggregateFields.length === 0,
+  `Kaplayground aggregate entry has remote manifest fields disallowed by this repository's no-duplication policy: ${repositoryDisallowedAggregateFields.join(", ")}`,
+);
+check(
+  repositoryAgents.includes("Codex supports fallback listing metadata") &&
+    repositoryAgents.includes("intentionally keeps the aggregate entry minimal") &&
+    repositoryAgents.includes("generate it from and validate it against the pinned manifest") &&
+    !repositoryAgents.includes("unsupported fallback fields") &&
+    !repositoryAgents.includes("unresolved Git-backed source is skipped"),
+  "AGENTS.md must describe minimal aggregate metadata as repository policy, not a Codex schema limitation",
 );
 const aggregateSource = aggregateEntry?.source;
 check(

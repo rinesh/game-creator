@@ -45,7 +45,20 @@ Manual test prompts to verify skills trigger correctly. Run each prompt against 
 
 ---
 
-KAPLAY and Kaplayground prompts should not trigger a bundled skill in this plugin. They belong to the separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground), while informational questions and repository implementation work remain ordinary requests.
+## kaplay
+
+**Should trigger:**
+- "build a coin collector in KAPLAY"
+- "use rinesh/kaplayground WebMCP to edit the current game"
+- "make a platformer in the open Kaplayground project"
+- "fix the current Kaplayground preview"
+- "iterate on this KAPLAY game with the page-defined browser tools"
+
+**Should NOT trigger:**
+- "make a Phaser platformer" → `make-game`
+- "build a Three.js game" → `make-game`
+- "what is KAPLAY?" → (no skill; informational)
+- "change the WebMCP adapter in rinesh/kaplayground" → (ordinary repository work)
 
 ---
 

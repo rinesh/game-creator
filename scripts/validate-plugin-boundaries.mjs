@@ -37,6 +37,10 @@ const readme = read("README.md");
 const gameCreatorAgent = read("agents/game-creator.md");
 const makeGame = read("skills/make-game/SKILL.md");
 const quickGame = read("skills/quick-game/SKILL.md");
+const localKaplaySkillPath = resolve(repositoryRoot, "skills/kaplay/SKILL.md");
+const localKaplaySkill = existsSync(localKaplaySkillPath)
+  ? read("skills/kaplay/SKILL.md")
+  : "";
 const positiveTriggers = read("tests/trigger-positive.txt");
 const negativeTriggers = read("tests/trigger-negative.txt");
 
@@ -48,17 +52,23 @@ check(
   "package and Claude distribution versions must match",
 );
 check(
-  !/kaplay/i.test(packageMetadata.description),
-  "package description must describe only Phaser and Three.js ownership",
+  /phaser/i.test(packageMetadata.description) &&
+    /three\.js/i.test(packageMetadata.description) &&
+    /kaplay/i.test(packageMetadata.description),
+  "package description must include Phaser, Three.js, and the bundled KAPLAY workflow",
 );
 check(
-  !/kaplay/i.test(claudePlugin.description),
-  "Claude plugin description must not claim KAPLAY ownership",
+  /kaplay/i.test(claudePlugin.description),
+  "Claude plugin description must advertise the bundled KAPLAY workflow",
 );
 check(
-  !/kaplay/i.test(claudeMarketplace.metadata?.description ?? "") &&
-    !/kaplay/i.test(claudeMarketplace.plugins?.[0]?.description ?? ""),
-  "Claude marketplace descriptions must not claim KAPLAY ownership",
+  /kaplay/i.test(claudeMarketplace.metadata?.description ?? "") &&
+    /kaplay/i.test(claudeMarketplace.plugins?.[0]?.description ?? ""),
+  "Claude marketplace descriptions must advertise the bundled KAPLAY workflow",
+);
+check(
+  /name:\s*kaplay/.test(localKaplaySkill) && /version:\s*1\.5\.0/.test(localKaplaySkill),
+  "bundled KAPLAY skill must retain its name and distribution version",
 );
 
 const aggregateEntry = codexMarketplace.plugins?.find(
@@ -73,12 +83,12 @@ check(
   `Kaplayground aggregate entry has remote manifest fields disallowed by this repository's no-duplication policy: ${repositoryDisallowedAggregateFields.join(", ")}`,
 );
 check(
-  repositoryAgents.includes("Codex supports fallback listing metadata") &&
-    repositoryAgents.includes("intentionally keeps the aggregate entry minimal") &&
-    repositoryAgents.includes("generate it from and validate it against the pinned manifest") &&
-    !repositoryAgents.includes("unsupported fallback fields") &&
-    !repositoryAgents.includes("unresolved Git-backed source is skipped"),
-  "AGENTS.md must describe minimal aggregate metadata as repository policy, not a Codex schema limitation",
+  repositoryAgents.includes("owns and bundles `skills/kaplay`") &&
+    repositoryAgents.includes("alternative distribution") &&
+    repositoryAgents.includes("install one KAPLAY distribution at a time") &&
+    repositoryAgents.includes("Codex supports fallback listing metadata") &&
+    repositoryAgents.includes("intentionally keeps the aggregate entry minimal"),
+  "AGENTS.md must preserve local ownership and distinguish the separate plugin",
 );
 const aggregateSource = aggregateEntry?.source;
 check(
@@ -101,13 +111,13 @@ check(
   "Kaplayground aggregate entry must use the Development category",
 );
 
-for (const removedPath of [
+for (const requiredPath of [
   "skills/kaplay",
   "scripts/validate-kaplay-skill.mjs",
   "tests/fixtures/kaplay-skill-contract.json",
   "tests/flows/08-kaplayground-webmcp.md",
 ]) {
-  check(!existsSync(resolve(repositoryRoot, removedPath)), `${removedPath} must be removed`);
+  check(existsSync(resolve(repositoryRoot, requiredPath)), `${requiredPath} must be present`);
 }
 
 const routingDocuments = {
@@ -118,10 +128,8 @@ const routingDocuments = {
 };
 for (const [path, contents] of Object.entries(routingDocuments)) {
   check(
-    !/skills\/kaplay|tree\/main\/skills\/kaplay|load the `kaplay` skill|use kaplay instead|\$kaplay|\/game-creator:kaplay/i.test(
-      contents,
-    ),
-    `${path} contains dangling local KAPLAY routing`,
+    /kaplay/i.test(contents),
+    `${path} must retain local KAPLAY routing or documentation`,
   );
 }
 
@@ -129,8 +137,9 @@ const kaplaygroundPluginUrl =
   `https://github.com/rinesh/kaplayground/tree/${kaplaygroundPluginTag}/plugins/kaplayground`;
 check(
   readme.includes(kaplaygroundPluginUrl) &&
-    readme.includes("does not bundle a copy"),
-  "README must identify Kaplayground as a separate related plugin",
+    readme.includes("alternative distribution") &&
+    readme.includes("not a replacement"),
+  "README must identify the Kaplayground plugin as a separate alternative",
 );
 check(
   readme.includes(aggregateMarketplaceCommand) &&
@@ -139,58 +148,54 @@ check(
   "README must document both aggregate and direct marketplace commands",
 );
 check(
-  readme.includes("refreshable aggregate channel") &&
-    readme.includes("tag is frozen") &&
+  readme.includes("aggregate may repin a newer validated release") &&
+    readme.includes("direct tag remains fixed at 1.5.0") &&
     readme.includes("repository policy fields do not override workspace policy"),
-  "README must distinguish the update channel, frozen tag, and ChatGPT workspace policy",
+  "README must distinguish the refreshable aggregate, frozen tag, and workspace policy",
 );
 check(
-  readme.includes("Choose one marketplace source") &&
-    /do not install the plugin from\s+both/.test(readme),
-  "README must warn users to install the plugin from only one marketplace",
+  readme.includes("npx skills add rinesh/game-creator") &&
+    readme.includes("https://github.com/rinesh/game-creator/tree/main/skills/kaplay") &&
+    readme.includes("$kaplay"),
+  "README must document bundled KAPLAY installation and invocation",
 );
-for (const [path, contents] of Object.entries({
-  "agents/game-creator.md": gameCreatorAgent,
-  "skills/make-game/SKILL.md": makeGame,
-  "skills/quick-game/SKILL.md": quickGame,
-})) {
-  check(
-    contents.includes(kaplaygroundPluginUrl) &&
-      contents.includes("separate"),
-    `${path} must route forced KAPLAY requests to the separate plugin`,
-  );
-}
-for (const [path, contents] of Object.entries(routingDocuments)) {
-  check(
-    !/github\.com\/rinesh\/kaplayground\/tree\/(?:dev|main)\/plugins\/kaplayground/.test(
-      contents,
-    ),
-    `${path} contains a mutable Kaplayground discovery link`,
-  );
-}
+check(
+  readme.includes("Choose the bundled skill or the separate plugin, not both"),
+  "README must warn users to install only one KAPLAY distribution",
+);
+check(
+  /load the `kaplay` skill/.test(gameCreatorAgent) &&
+    /load the `kaplay` skill/.test(makeGame) &&
+    /use kaplay instead/i.test(quickGame),
+  "game-creator, make-game, and quick-game must route live KAPLAY work locally",
+);
+check(
+  !/github\.com\/rinesh\/kaplayground\/tree\/(?:dev|main)\/plugins\/kaplayground/.test(readme),
+  "README contains a mutable Kaplayground plugin link",
+);
 
-const movedTriggerPrompts = [
+const localTriggerPrompts = [
   "build a coin collector in KAPLAY",
   "use rinesh/kaplayground WebMCP to edit the current game",
   "make a platformer in the open Kaplayground project",
   "fix the current Kaplayground preview",
   "iterate on this KAPLAY game with the page-defined browser tools",
 ];
-for (const prompt of movedTriggerPrompts) {
+for (const prompt of localTriggerPrompts) {
   check(
-    !positiveTriggers.includes(prompt),
-    `positive trigger ownership remains for: ${prompt}`,
+    positiveTriggers.includes(prompt),
+    `positive trigger ownership is missing for: ${prompt}`,
   );
   check(
-    negativeTriggers.includes(prompt),
-    `negative boundary fixture is missing: ${prompt}`,
+    !negativeTriggers.includes(prompt),
+    `KAPLAY prompt appears in negative triggers: ${prompt}`,
   );
 }
 
 if (failures.length > 0) {
-  console.error("Plugin ownership boundary validation failed:");
+  console.error("KAPLAY distribution validation failed:");
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log("Plugin ownership boundary validation passed.");
+console.log("KAPLAY distribution validation passed.");

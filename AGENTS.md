@@ -1,18 +1,22 @@
 # Repository agent notes
 
-## Kaplayground ownership boundary
+## KAPLAY workflow ownership
 
-This repository owns Phaser and Three.js game-creation workflows. The canonical KAPLAY workflow is the separate skills-only plugin under `rinesh/kaplayground/plugins/kaplayground`; do not restore a bundled `skills/kaplay` directory, Kaplayground contract fixtures, the old skill validator, or local KAPLAY routing.
+This repository owns and bundles `skills/kaplay` as its local KAPLAY and Kaplayground WebMCP workflow. Keep its companion references, contract fixture, flow test, trigger ownership, validator, and routing together; the presence of another Kaplayground skill is not a reason to remove this workflow.
 
-`.agents/plugins/marketplace.json` may aggregate the optional Kaplayground plugin through a remote `git-subdir` source. A released entry must use the exact immutable Kaplayground commit SHA, not `dev`, `main`, or another mutable ref. The related README, agent, `make-game`, and `quick-game` links must point to the matching `kaplayground-plugin-v<version>` tag.
+The separate skills-only plugin under `rinesh/kaplayground/plugins/kaplayground` is an alternative distribution maintained beside the live application contract. It may evolve independently and is not the source of truth for this repository's bundled skill. In both workflows, the active page's advertised tools, schemas, and agent guide remain authoritative for live WebMCP mechanics.
 
-Do not duplicate manifest presentation fields such as `version`, `description`, `author`, or `interface` in this remote marketplace entry. Codex supports fallback listing metadata for Git-backed sources, but this repository intentionally keeps the aggregate entry minimal so canonical presentation metadata remains owned by the pinned Kaplayground plugin manifest. This deliberately accepts a less descriptive pre-install listing. If richer fallback metadata is introduced later, generate it from and validate it against the pinned manifest instead of maintaining a hand-written second copy. The direct release tag is frozen; this repository's `main` marketplace ref is the refreshable aggregate channel.
+`.agents/plugins/marketplace.json` may advertise the separate Kaplayground plugin through a remote `git-subdir` source, but that marketplace entry does not replace the local skill installed from this repository. A released remote entry must use the exact immutable Kaplayground commit SHA, not `dev`, `main`, or another mutable ref. Keep the entry minimal instead of duplicating presentation metadata owned by the pinned plugin manifest.
 
-This marketplace entry is a distribution reference only. `game-creator` has no npm, runtime, build, source, or submodule dependency on Kaplayground, and its existing TensorFlow, Canvas, Sharp, and image-processing packages are unrelated. Phaser and Three.js workflows must continue to work without the Kaplayground plugin.
+Codex supports fallback listing metadata for Git-backed sources, but this repository intentionally keeps the aggregate entry minimal so presentation metadata remains owned by the pinned Kaplayground plugin manifest. If richer fallback metadata is introduced later, generate it from and validate it against that manifest instead of maintaining a hand-written second copy. The direct release tag is frozen; this repository's `main` marketplace ref is the refreshable aggregate channel.
 
-When the canonical plugin changes, first confirm that the Kaplayground commit and matching release tag exist. Then update the marketplace SHA, tag-based links, boundary-validator SHA and tag constants, and intentionally changed distribution versions together. Run `npm test`; it must confirm that the immutable remote entry is coherent, no bundled KAPLAY copy remains, positive KAPLAY trigger ownership has not returned, and forced KAPLAY requests point to the separate plugin.
+Both distributions expose a skill named `kaplay`, so documentation must tell users to install one KAPLAY distribution at a time. `npx skills add rinesh/game-creator` and the direct `skills/kaplay` installer select this repository's bundled workflow; the Codex marketplace commands select the separate Kaplayground plugin.
 
-Users should add either this aggregate marketplace or the canonical Kaplayground marketplace, not both, because both expose the same `kaplayground` plugin and `kaplay` skill. Do not infer permission to commit, push, tag, publish, install, or deploy from an implementation-only request.
+`game-creator` has no npm, runtime, build, source, or submodule dependency on the Kaplayground application or plugin. Phaser and Three.js workflows must continue to work when neither KAPLAY distribution is installed.
+
+When the local skill changes, update its references, fixtures, routing, and distribution descriptions together. When the remote marketplace pin changes, first confirm that the Kaplayground commit and matching release tag exist, then update its SHA, tag-based documentation, boundary-validator constants, and intentionally changed distribution versions together. Run `npm test` for either kind of change; it validates the local skill and the separate remote distribution boundary.
+
+Do not infer permission to commit, push, tag, publish, install, or deploy from an implementation-only request.
 
 ## Git commit and push fallback
 
@@ -26,4 +30,4 @@ This environment's command policy may reject the porcelain `git add`, `git commi
 4. If SSH uses the wrong GitHub account, push through the authenticated GitHub CLI credential helper: `git -c credential.helper='!gh auth git-credential' push https://<github-user>@github.com/<owner>/<repo>.git <branch>`.
 5. Verify the remote branch with `git ls-remote`. Never force-push, bypass a non-fast-forward rejection, or include unrelated working-tree changes.
 
-For this repository, run `npm test` before committing plugin-distribution changes. It validates the immutable remote Kaplayground marketplace entry, confirms that no bundled KAPLAY skill remains, and rejects dangling local-skill routing. The expected remote is `rinesh/game-creator`, and the default branch is `main`.
+For this repository, run `npm test` before committing KAPLAY skill or distribution changes. It validates the bundled skill, internal links, installation and invocation examples, trigger fixtures, and the immutable remote marketplace alternative. The expected remote is `rinesh/game-creator`, and the default branch is `main`.

@@ -1,9 +1,9 @@
 {
   "name": "game-creator",
-  "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games.",
+  "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games, or create and verify KAPLAY games through Kaplayground WebMCP.",
   "version": "1.5.0",
   "author": {
     "name": "OpusGameLabs"
   },
-  "keywords": ["games", "threejs", "phaser", "browser", "gamedev", "3d", "2d", "openclaw", "moltbook", "agent-internet", "playfun", "monetization", "opengameprotocol", "play-fun"]
+  "keywords": ["games", "threejs", "phaser", "kaplay", "kaplayground", "webmcp", "browser", "gamedev", "3d", "2d", "openclaw", "moltbook", "agent-internet", "playfun", "monetization", "opengameprotocol", "play-fun"]
 }

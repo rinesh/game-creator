@@ -4,14 +4,14 @@
     "name": "OpusGameLabs"
   },
   "metadata": {
-    "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games.",
+    "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games, or create and verify KAPLAY games through Kaplayground WebMCP.",
     "version": "1.5.0"
   },
   "plugins": [
     {
       "name": "game-creator",
       "source": "./",
-      "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games.",
+      "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games, or create and verify KAPLAY games through Kaplayground WebMCP.",
       "version": "1.5.0",
       "author": {
         "name": "OpusGameLabs"
@@ -24,6 +24,9 @@
         "gamedev",
         "threejs",
         "phaser",
+        "kaplay",
+        "kaplayground",
+        "webmcp",
         "browser",
         "3d",
         "2d",

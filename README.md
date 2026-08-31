@@ -2,7 +2,7 @@
 
 **Go from game idea to deployed, monetized browser game in minutes — not hours.**
 
-Tell your AI coding agent "make a space invaders game" and get a fully playable browser game. The Phaser 2D and Three.js 3D template pipeline adds pixel art, procedural audio, automated QA, deployment, and [Play.fun](https://play.fun) monetization.
+Tell your AI coding agent "make a space invaders game" and get a fully playable browser game. The Phaser 2D and Three.js 3D template pipeline adds pixel art, procedural audio, automated QA, deployment, and [Play.fun](https://play.fun) monetization. For KAPLAY, create and iterate directly in the active [Kaplayground](https://github.com/rinesh/kaplayground) page through its browser-native WebMCP tools.
 
 Works with **40+ AI coding agents** — Claude Code, Cursor, Windsurf, Cline, and more via `npx skills add`.
 
@@ -10,7 +10,7 @@ Works with **40+ AI coding agents** — Claude Code, Cursor, Windsurf, Cline, an
 
 ## Install
 
-Install the Phaser and Three.js workflows with:
+Install this fork so the KAPLAY skill is included:
 
 ```bash
 npx skills add rinesh/game-creator
@@ -25,37 +25,40 @@ npx skills add rinesh/game-creator -a codex
 npx skills add rinesh/game-creator -a antigravity
 ```
 
-KAPLAY work is owned by the separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground). Kaplayground's page-owned WebMCP tools remain usable without either plugin, while its optional plugin adds KAPLAY-specific orchestration and verification guidance without granting additional tools or permissions. This repository aggregates that plugin through its Codex marketplace metadata and does not bundle a copy.
+For Codex, you can install only the KAPLAY skill with the built-in installer. Enter this in Codex, not in a shell:
 
-Add the aggregate Codex marketplace with the refreshable aggregate channel on
-`main`, which may repin a newer validated Kaplayground release:
+```text
+$skill-installer Install the kaplay skill from https://github.com/rinesh/game-creator/tree/main/skills/kaplay
+```
+
+Codex can then select it automatically from your request, through `/skills`, or through an explicit `$kaplay` mention.
+
+The separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground) is an alternative distribution maintained with the live application. It is not a replacement for this repository's bundled skill. To use that plugin instead, add the refreshable aggregate marketplace:
 
 ```bash
 codex plugin marketplace add rinesh/game-creator --ref main
 ```
 
-Refresh the aggregate later with:
+Refresh that aggregate later with:
 
 ```bash
 codex plugin marketplace upgrade game-creator
 ```
 
-Alternatively, install the canonical marketplace directly at its immutable
-1.5.0 release:
+Alternatively, add the frozen direct release:
 
 ```bash
 codex plugin marketplace add rinesh/kaplayground --ref kaplayground-plugin-v1.5.0
 ```
 
-That tag is frozen and will remain on 1.5.0. Choose one marketplace source and
-do not install the plugin from both, because both sources register the same
-`kaplayground` plugin and `kaplay` skill. For ChatGPT workspace imports,
-configure plugin installation and authentication in Workspace settings;
-repository policy fields do not override workspace policy.
+The direct tag remains fixed at 1.5.0, while the aggregate may repin a newer validated release. Choose the bundled skill or the separate plugin, not both, because both expose a skill named `kaplay`. Kaplayground's page-owned WebMCP tools remain usable without either installation; the skills add workflow guidance, not additional page capabilities or permissions. For ChatGPT workspace imports, configure installation and authentication in Workspace settings; repository policy fields do not override workspace policy.
 
 ## Quick Start
 
 ```text
+# In Codex, open Kaplayground in the controllable browser, then invoke the skill
+$kaplay make a coin collector
+
 # Build a complete 2D game (scaffold → pixel art → design → audio → deploy → monetize)
 # QA subagent runs after every step (build, runtime, gameplay, architecture, visual)
 /game-creator:make-game 2d my-game
@@ -89,6 +92,8 @@ Step 5  Monetize with Play.fun                                 ← main thread (
 ```
 
 The QA subagent runs 5 phases per step: build check, runtime check (headless Chromium), gameplay verification (iterate client with game-specific actions), architecture validation, and visual review (Playwright MCP screenshots). If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts per step).
+
+`$kaplay` uses the project already open in the WebMCP-enabled Kaplayground page. It reads the page-owned agent guide, can switch to a requested ready-made example without silently discarding work, mutates editor files with project- and file-level revision guards, lists project assets, and searches Asset Brew for exact sprite, sound, and font loader code. It then runs an acknowledged preview, checks available diagnostics and run-scoped console output, and inspects bounded runtime state. After verification, it flushes an existing saved project; a transient example remains disposable unless the user asks to keep it. It uses the browser for screenshots plus gameplay input when the preview iframe is controllable, without copying a template or configuring a separate tool server.
 
 ## Architecture
 
@@ -144,6 +149,7 @@ src/
 | Command | Description |
 |---------|-------------|
 | `/make-game [2d\|3d] [name]` | Full pipeline: scaffold, pixel art, design, audio, deploy, monetize |
+| `$kaplay [game concept or change]` in Codex | Build or edit in Kaplayground through browser WebMCP, with ready-made examples, Asset Brew, revision-safe writes, intent-preserving persistence, and browser-backed verification |
 | `/improve-game [focus]` | Deep audit + implement highest-impact improvements |
 | `/design-game [path]` | Audit and improve visual polish |
 | `/add-feature [description]` | Add a gameplay feature following architecture patterns |
@@ -198,17 +204,20 @@ npm run build      # Production build to dist/
 
 Both templates ship with `scripts/verify-runtime.mjs` (headless runtime check), `scripts/iterate-client.js` (action replay + screenshots), `scripts/validate-architecture.mjs` (pattern validator), and `scripts/example-actions.json` (default test actions).
 
+KAPLAY work uses the editor-managed files in Kaplayground instead of a third local template. The `kaplay` skill can open a requested bundled example, preserves Kaplayground's `main.js`, `kaplay.js`, `assets.js`, `scenes/`, `objects/`, and `utils/` layout, reuses project assets or exact Asset Brew loader code, updates files with revision-aware page-defined WebMCP tools, and verifies the live preview in the same browser tab.
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| 2D Engine | Phaser 3 (`^3.90.0`) |
+| 2D Engines | Phaser 3 (`^3.90.0`); KAPLAY (`3001.0.19` stable baseline, with the active Kaplayground version discovered at runtime) |
 | 3D Engine | Three.js (`^0.183.0`) |
+| Live editor API | [Kaplayground](https://github.com/rinesh/kaplayground) browser WebMCP, surfaced by the active page |
 | Audio | Strudel.cc (`@strudel/web ^1.3.0`) — AGPL-3.0 |
 | Build | Vite (`^7.3.1`) |
 | Testing | Playwright (`^1.58.0`) + axe-core (`^4.11.0`) |
 | Monetization | [Play.fun](https://play.fun) (OpenGameProtocol) |
-| Language | JavaScript ES modules |
+| Language | JavaScript ES modules; Kaplayground also permits TypeScript supporting files |
 
 ## Quality Assurance
 
@@ -221,6 +230,8 @@ QA is built into every code-modifying step of the pipeline via a dedicated QA su
 5. **Visual** — Playwright MCP screenshots check entity visibility, safe zone compliance, button labels
 
 If any phase fails, an autofix subagent patches the code and QA re-runs (up to 3 attempts). Problems are caught when introduced, not at the end of the pipeline.
+
+For KAPLAY, the equivalent gate is browser-backed: run the Kaplayground preview, require available clean diagnostics, inspect console entries for the acknowledged run ID, compare bounded runtime inspection against that run, preserve the project's persistence intent, and use the same tab to review a screenshot. Flush an existing saved project after verification, but leave a transient example disposable unless the user asks to keep it. Exercise the requested gameplay when the browser can control the preview iframe, and otherwise state that behavioral verification remains incomplete.
 
 ## Play.fun Integration
 

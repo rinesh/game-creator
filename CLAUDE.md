@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is **game-creator**, the game studio for the agent internet. It provides skills and agents for scaffolding, designing, deploying, and monetizing 2D (Phaser 3) and 3D (Three.js) browser games. QA (build, runtime, visual review, autofix) runs at every step. Monetize with [Play.fun](https://play.fun) (OpenGameProtocol). Works with **40+ AI coding agents** (via `npx skills add`). Share your play.fun URL on [Moltbook](https://www.moltbook.com/). KAPLAY workflows are owned by the separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground), which this repository advertises without bundling.
+This is **game-creator**, the game studio for the agent internet. It provides skills and agents for scaffolding, designing, deploying, and monetizing 2D (Phaser 3) and 3D (Three.js) browser games, plus live KAPLAY iteration through the page-defined WebMCP tools in Kaplayground. The bundled KAPLAY workflow uses `3001.0.19` as its stable fallback while adapting to the active editor version, including v4000 and `master`; the separate Kaplayground plugin remains an alternative distribution rather than its replacement. QA (build, runtime, visual review, autofix) runs at every step. Monetize with [Play.fun](https://play.fun) (OpenGameProtocol). Works with **40+ AI coding agents** (via `npx skills add`). Share your play.fun URL on [Moltbook](https://www.moltbook.com/).
 
 ## Repository Structure
 
@@ -14,6 +14,7 @@ settings.json              # Default settings (activates game-creator agent)
 skills/
   phaser/SKILL.md          # 2D game patterns (Phaser 3, scene-based, multi-file)
   threejs-game/SKILL.md    # 3D game patterns (Three.js, event-driven)
+  kaplay/SKILL.md          # Active-version KAPLAY + Kaplayground browser WebMCP iteration
   game-assets/SKILL.md     # Pixel art sprites (code-only, no external files)
   game-designer/SKILL.md   # Visual polish (gradients, particles, juice, transitions)
   game-audio/SKILL.md      # Procedural audio (Web Audio API BGM + SFX)
@@ -78,7 +79,7 @@ examples/
 
 ## Architecture Rules
 
-Phaser and Three.js games built by the template pipeline follow these mandatory patterns.
+Phaser and Three.js games built by the template pipeline follow these mandatory patterns. KAPLAY projects use the editor layout and component/scene patterns in `skills/kaplay/`; do not force the template directory structure into Kaplayground.
 
 1. **EventBus singleton** — All cross-module communication via pub/sub. Modules never import each other directly. Events use `domain:action` naming (e.g., `bird:flap`, `game:over`).
 
@@ -179,7 +180,7 @@ skills/phaser/
   performance.md              # Optimization tips, texture atlases, object pooling
 ```
 
-**Skills with companion files:** `phaser` (8), `game-qa` (7), `game-audio` (6), `meshyai` (3), `game-assets` (3), `threejs-game` (3+), `make-game` (3).
+**Skills with companion files:** `phaser` (8), `game-qa` (7), `game-audio` (6), `meshyai` (3), `game-assets` (3), `threejs-game` (3+), `make-game` (3), `kaplay` (2).
 
 ## Reference vs User-Invocable Skills
 
@@ -205,7 +206,7 @@ This separation avoids duplicating domain knowledge across multiple skills. The 
 
 **Add a new user-invocable skill** (slash command): Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `argument-hint`). Body contains the prompt instructions.
 
-**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.4.2/` for Claude Code).
+**Sync to plugin cache**: After editing skill files, copy to your agent's plugin cache directory (e.g. `~/.claude/plugins/cache/local-plugins/game-creator/1.5.0/` for Claude Code).
 
 **Run the example**: `cd examples/flappy-bird && npm run dev` starts on port 3000.
 

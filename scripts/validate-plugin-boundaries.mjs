@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const bundledKaplaySkillVersion = "1.5.1";
 const kaplaygroundPluginSha = "c70d10d26ce6134a898c3ce06c7bf04cdc641738";
 const kaplaygroundPluginVersion = "1.5.0";
 const kaplaygroundPluginTag = `kaplayground-plugin-v${kaplaygroundPluginVersion}`;
@@ -67,7 +68,8 @@ check(
   "Claude marketplace descriptions must advertise the bundled KAPLAY workflow",
 );
 check(
-  /name:\s*kaplay/.test(localKaplaySkill) && /version:\s*1\.5\.0/.test(localKaplaySkill),
+  /name:\s*kaplay/.test(localKaplaySkill) &&
+    localKaplaySkill.includes(`version: ${bundledKaplaySkillVersion}`),
   "bundled KAPLAY skill must retain its name and distribution version",
 );
 

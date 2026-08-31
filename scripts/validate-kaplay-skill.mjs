@@ -50,6 +50,26 @@ function parseFrontmatter(markdown) {
   return fields;
 }
 
+function parseFrontmatterSection(markdown, sectionName) {
+  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+  if (!match) return null;
+
+  const fields = new Map();
+  let inSection = false;
+  for (const line of match[1].split(/\r?\n/)) {
+    const sectionMatch = line.match(/^([a-zA-Z0-9_-]+):\s*$/);
+    if (sectionMatch) {
+      inSection = sectionMatch[1] === sectionName;
+      continue;
+    }
+    if (!inSection) continue;
+    const fieldMatch = line.match(/^  ([a-zA-Z0-9_-]+):\s*(.+)$/);
+    if (fieldMatch) fields.set(fieldMatch[1], unquote(fieldMatch[2]));
+    if (line && !/^\s/.test(line)) inSection = false;
+  }
+  return fields;
+}
+
 function markdownFiles(directory) {
   const files = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -68,12 +88,27 @@ function normalizedLines(relativePath) {
     .map((line) => line.toLocaleLowerCase("en-US"));
 }
 
-function difference(expected, actual) {
-  return [...expected].filter((value) => !actual.has(value));
+function parseContractVersion(value) {
+  if (typeof value !== "string") return null;
+  const match = value.match(/^(\d+)\.(\d+)$/);
+  if (!match) return null;
+  return { major: Number(match[1]), minor: Number(match[2]) };
+}
+
+function isCompatibleContract(value, minimum) {
+  const candidate = parseContractVersion(value);
+  const floor = parseContractVersion(minimum);
+  if (!candidate || !floor || candidate.major !== floor.major) return false;
+  return candidate.minor >= floor.minor;
+}
+
+function hasProfile(tools, requirements) {
+  return requirements.every((tool) => tools.has(tool));
 }
 
 const skillMarkdown = read("skills/kaplay/SKILL.md");
 const frontmatter = parseFrontmatter(skillMarkdown);
+const skillMetadata = parseFrontmatterSection(skillMarkdown, "metadata");
 check(frontmatter !== null, "skills/kaplay/SKILL.md must start with YAML frontmatter");
 if (frontmatter) {
   const allowedFrontmatterKeys = new Set([
@@ -93,6 +128,7 @@ if (frontmatter) {
     `unsupported frontmatter keys: ${unexpectedKeys.join(", ")}`,
   );
 }
+check(skillMetadata !== null, "SKILL.md must include flat metadata fields");
 check(
   !/\b(?:TODO|TBD|REPLACE_ME)\b/.test(skillMarkdown),
   "SKILL.md contains an unfinished scaffold placeholder",
@@ -147,24 +183,125 @@ check(
 );
 
 const fixture = JSON.parse(read("tests/fixtures/kaplay-skill-contract.json"));
-const expectedTools = new Set(fixture.canonicalTools);
-check(expectedTools.size === 19, "canonical tool snapshot must contain nineteen unique tools");
-for (const tool of expectedTools) {
-  check(/^kaplayground_[a-z0-9_]+$/.test(tool), `invalid canonical tool name: ${tool}`);
+const webmcpReference = read("skills/kaplay/kaplayground-webmcp.md");
+const contractDocumentation = `${skillMarkdown}\n${webmcpReference}\n${flowTest}`;
+const expectedReferenceTopics = [
+  "file-editing",
+  "preview-verification",
+  "kaplay-patterns",
+  "assets",
+  "persistence",
+  "failure-recovery",
+];
+
+check(skillMetadata?.get("version") === "1.5.1", "skill version must be 1.5.1");
+check(fixture.contract.minimum === "1.1", "contract minimum must be 1.1");
+check(fixture.contract.testedThrough === "1.x", "tested contract family must be 1.x");
+check(fixture.contract.guideVersion === 5, "agent guide version must be 5");
+check(
+  skillMetadata?.get("kaplayground-contract-minimum") === fixture.contract.minimum,
+  "skill metadata must match the contract minimum",
+);
+check(
+  skillMetadata?.get("kaplayground-contract-tested-through") === fixture.contract.testedThrough,
+  "skill metadata must match the tested contract family",
+);
+check(
+  JSON.stringify(fixture.referenceTopics) === JSON.stringify(expectedReferenceTopics),
+  "focused reference topics must match Contract 1.1",
+);
+
+const fullSurface = new Set(fixture.fullSurface);
+check(
+  Array.isArray(fixture.fullSurface) &&
+    fixture.fullSurface.length === 20 &&
+    fullSurface.size === 20,
+  "full surface must contain exactly twenty unique tools",
+);
+for (const tool of fullSurface) {
+  check(/^kaplayground_[a-z0-9_]+$/.test(tool), `invalid tool name: ${tool}`);
+}
+check(
+  !/\b(?:nineteen|19-tool|canonical tool surface)\b/i.test(contractDocumentation),
+  "skill guidance must not retain an exact-count contract gate",
+);
+check(
+  /absent[^.]*older[^.]*unknown|absent[^.]*older[^.]*different-major/i.test(contractDocumentation),
+  "skill guidance must keep absent, older, and unknown contracts inspection-only",
+);
+check(
+  webmcpReference.includes("kaplayground_get_reference") &&
+    webmcpReference.includes("source-only mutation"),
+  "static reference must cover focused references and source-only confirmation",
+);
+
+for (const [profileName, requirements] of Object.entries(fixture.profiles)) {
+  check(Array.isArray(requirements), `${profileName} profile must be an array`);
+  check(
+    new Set(requirements).size === requirements.length,
+    `${profileName} profile contains duplicate tools`,
+  );
+  for (const tool of requirements) {
+    check(fullSurface.has(tool), `${profileName} references an unknown tool: ${tool}`);
+  }
 }
 
-const webmcpReference = read("skills/kaplay/kaplayground-webmcp.md");
-const surfaceMatch = webmcpReference.match(
-  /## Canonical Tool Surface\s+([\s\S]*?)\s+## Editor Tools/,
-);
-check(Boolean(surfaceMatch), "WebMCP reference must contain a canonical tool surface section");
-if (surfaceMatch) {
-  const documentedTools = new Set(surfaceMatch[1].match(/kaplayground_[a-z0-9_]+/g) ?? []);
-  const missingTools = difference(expectedTools, documentedTools);
-  const unexpectedTools = difference(documentedTools, expectedTools);
-  check(missingTools.length === 0, `canonical tool section is missing: ${missingTools.join(", ")}`);
-  check(unexpectedTools.length === 0, `canonical tool section has unexpected tools: ${unexpectedTools.join(", ")}`);
+for (const testCase of fixture.cases) {
+  const advertised = new Set(
+    testCase.tools === "fullSurface" ? fixture.fullSurface : testCase.tools,
+  );
+  const schemaCompatible = new Set(testCase.schemaCompatibleTools ?? advertised);
+  for (const tool of advertised) {
+    check(fullSurface.has(tool), `${testCase.name} advertises an unknown tool: ${tool}`);
+  }
+  for (const tool of schemaCompatible) {
+    check(advertised.has(tool), `${testCase.name} marks an unadvertised tool schema-compatible: ${tool}`);
+  }
+  const usableTools = new Set(
+    [...advertised].filter((tool) => schemaCompatible.has(tool)),
+  );
+  const contractCompatible = isCompatibleContract(
+    testCase.contractVersion,
+    fixture.contract.minimum,
+  );
+  const inspection = hasProfile(usableTools, fixture.profiles.inspection);
+  const existingFileEditing = hasProfile(
+    usableTools,
+    fixture.profiles.existingFileEditing,
+  );
+  const verifiedIteration = hasProfile(
+    usableTools,
+    fixture.profiles.verifiedIteration,
+  );
+  const recommendedEvidence = hasProfile(
+    usableTools,
+    fixture.profiles.recommendedEvidence,
+  );
+  const sourceOnlyConfirmationRequired =
+    contractCompatible &&
+    existingFileEditing &&
+    !verifiedIteration &&
+    !testCase.sourceOnlyAccepted;
+  const mutationAllowed =
+    contractCompatible &&
+    existingFileEditing &&
+    (verifiedIteration || testCase.sourceOnlyAccepted === true);
+  const actual = {
+    contractCompatible,
+    inspection,
+    existingFileEditing,
+    verifiedIteration,
+    recommendedEvidence,
+    sourceOnlyConfirmationRequired,
+    mutationAllowed,
+  };
+
+  check(
+    JSON.stringify(actual) === JSON.stringify(testCase.expected),
+    `${testCase.name} produced ${JSON.stringify(actual)} instead of ${JSON.stringify(testCase.expected)}`,
+  );
 }
+check(fixture.cases.length === 9, "contract fixture must contain nine cases");
 
 const positiveTriggers = new Set(normalizedLines("tests/trigger-positive.txt"));
 const negativeTriggers = new Set(normalizedLines("tests/trigger-negative.txt"));
@@ -192,6 +329,6 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `KAPLAY skill contract validation passed (${expectedTools.size} tools, ${fixture.positiveTriggers.length} positive triggers, ${fixture.negativeTriggers.length} negative triggers).`,
+    `KAPLAY skill contract validation passed (${fixture.cases.length} contract cases, ${fullSurface.size} tools, ${fixture.positiveTriggers.length} positive triggers, ${fixture.negativeTriggers.length} negative triggers).`,
   );
 }

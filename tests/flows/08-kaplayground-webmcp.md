@@ -2,72 +2,83 @@
 
 ## Objective
 
-Test that the KAPLAY skill edits the project currently open in a WebMCP-enabled KAPLAYGROUND browser page and reports exactly what the page and browser can verify.
+Test that the KAPLAY skill validates Contract 1.1, negotiates the active page's capabilities, edits safely, and reports only the evidence the page and browser can verify.
 
 ## Prerequisites
 
-- A WebMCP-enabled KAPLAYGROUND page is open in a browser the agent can control.
-- The page advertises its `kaplayground_*` WebMCP tools.
+- A WebMCP-enabled KAPLAYGROUND page is open in a controllable browser.
 - The active project is a clean disposable starter with no unsaved work.
-- Browser control can capture the page; preview-iframe input and evaluation may be unavailable and must limit the behavioral verification claim.
+- The full deployment advertises 20 `kaplayground_*` tools; reduced-adapter variants intentionally advertise fewer.
+- Browser capture is available; preview-iframe input and evaluation may be unavailable and must limit behavioral claims.
 
 ## Test Prompt
 
 "$kaplay replace the clean starter with a suitable ready-made example, then build a top-down coin collector with WASD and arrow controls, a 30-second timer, and R to restart. Use an Asset Brew character sprite and collection sound, and leave the result disposable."
 
-## Steps
+## Full Contract 1.1 Flow
 
 ### Phase 1: Discover and inspect
 
 - [ ] Obtains the tab's `webmcp` capability, fetches its current tools, and calls only advertised names.
-- [ ] Requires the canonical nineteen `kaplayground_*` tools and calls `kaplayground_get_agent_guide` before editing.
-- [ ] Calls `kaplayground_get_project` and records `projectId`, `projectRevision`, `storageState`, `kaplayVersion`, project mode (`ex` means Example, `pj` means Project), preview state, `hasUnsavedChanges`, and current example metadata.
-- [ ] Calls `kaplayground_list_examples`, chooses one exact returned key that fits the request, and calls `kaplayground_open_example` with the current `expectedProjectRevision` and `discardUnsavedChanges: false`.
-- [ ] Treats the opened example as a project replacement, discards every old revision, and calls `kaplayground_get_project` again before inspecting source.
-- [ ] Lists project files and relevant asset metadata, then reads every file it will change, retaining the project and content revisions and rejecting truncated content.
+- [ ] Calls `kaplayground_get_agent_guide` and requires a compatible `contractVersion: "1.1"`; confirms `guideVersion: 5`, no `version` alias, and `availableTools` matching the page surface.
+- [ ] Evaluates inspection, existing-file editing, verified-iteration, recommended-evidence, and task-specific profiles against actual tools and schemas rather than a fixed count.
+- [ ] Calls `kaplayground_get_project` and records project identity, revisions, persistence state, KAPLAY version, mode, preview state, unsaved state, and current example metadata.
+- [ ] Calls `kaplayground_list_examples`, opens one exact returned key with the current revision, discards all stale revisions after replacement, and inspects the new project again.
+- [ ] Lists files and assets, reads every file it will change, retains complete content revisions, and rejects truncated reads.
+- [ ] Fetches only the `file-editing`, `kaplay-patterns`, and `assets` focused references needed before implementation.
 
 ### Phase 2: Implement safely
 
 - [ ] Keeps `main.js` as the entry and preserves the project's global or scoped KAPLAY API style.
-- [ ] Uses a scene with restart through `go("game")`, continuous movement through `onKeyDown`, and version-correct overlap areas: plain `area()` for v3001, sensors for exact v4000, or runtime feature detection for `master`.
-- [ ] Exposes `window.render_game_to_text()` with the visible game state.
-- [ ] Calls `kaplayground_search_asset_brew` with descriptive sprite and sound queries, then inserts exact untruncated returned loader code into the project's existing asset-loading location without inventing URLs or claiming an asset upload.
-- [ ] Replaces existing files with complete content plus the latest `expectedRevision` and `expectedProjectRevision`; it never invents a project identifier or partial patch operation.
-- [ ] Creates files only as direct JS/TS children of `scenes/`, `objects/`, or `utils/`, passes `expectedProjectRevision`, and removes none unless explicitly requested and confirmed.
-- [ ] Uses `runPreview: false` for every mutation so preview failure cannot obscure whether a write succeeded.
+- [ ] Uses a restartable scene, continuous movement, and version-correct overlap areas for the selected runtime.
+- [ ] Exposes `window.render_game_to_text()` with visible game state.
+- [ ] Searches Asset Brew with descriptive sprite and sound queries, then inserts exact untruncated returned loader code without inventing URLs or claiming an upload.
+- [ ] Replaces files with complete content plus current project and file revisions; it never invents a project identifier or partial patch operation.
+- [ ] Uses advertised file creation only for schema-supported paths and performs no removal unless explicitly requested and confirmed.
+- [ ] Uses `runPreview: false` for mutations so preview failure cannot obscure write success.
 
-### Phase 3: WebMCP and browser verification
+### Phase 3: Verify and hand off
 
-- [ ] Uses a landscape project layout, calls `kaplayground_run_preview` separately, and retains its acknowledged `runId`.
-- [ ] Requires `available: true` diagnostics and `available: true` console capture filtered to the exact run ID; it reports truncation or dropped capture entries rather than treating incomplete evidence as clean.
-- [ ] Calls `kaplayground_inspect_preview`, verifies that its run ID matches, and interprets `available` before using the shallow runtime snapshot as evidence.
-- [ ] Uses a browser screenshot of the KAPLAYGROUND tab; it does not expect a WebMCP screenshot or base64 payload.
-- [ ] Confirms the initial frame shows the player, coin, timer, score, controls, and restart affordance legibly.
+- [ ] Fetches the `preview-verification` reference, uses a landscape layout, calls `run_preview`, and retains the acknowledged `runId`.
+- [ ] Requires available clean diagnostics and uses console output and runtime inspection only when advertised, scoped to the exact run and reported with truncation or availability limits.
+- [ ] Captures the KAPLAYGROUND tab through browser control; it does not expect a WebMCP screenshot or base64 payload.
+- [ ] When iframe input is available, focuses the preview and exercises movement, collection, timeout, and restart, then checks same-run evidence again.
+- [ ] When iframe input is unavailable, says the source, diagnostics, advertised runtime evidence, and initial frame were checked while gameplay remains unexercised.
+- [ ] Calls `get_project` again and leaves the explicitly disposable transient example unsaved, reporting mode, nullable project ID, storage state, revision, and unsaved state exactly.
 
-### Phase 4: Behavioral verification and handoff
+## Capability Variants
 
-- [ ] When browser iframe input is available, clicks or focuses the preview canvas before exercising movement, collection, timeout, and restart, then captures same-run inspection state, transition logs, and screenshots.
-- [ ] When iframe evaluation is separately available, also observes state through `render_game_to_text()`; it does not require evaluation merely because input works.
-- [ ] When iframe control is unavailable, says that source, available diagnostics, same-run console output, bounded runtime inspection, and the initial frame were verified while input, collision, scoring, and restart remain unexercised.
-- [ ] Calls `kaplayground_get_project` after verification and, because the prompt explicitly keeps the replacement example disposable, does not call `kaplayground_save_project`; it reports `mode`, `projectId: null`, `storageState: "transient"`, and `hasUnsavedChanges` exactly.
-- [ ] In a separate variant that edits an already autosaved project without opening an example, calls `kaplayground_save_project` with the current project revision before the final `get_project`, then reports the returned project ID and autosaved state exactly.
+### Reduced optional surface
+
+- [ ] With a compatible Contract 1.1 page that has inspection, editing, verified iteration, and recommended evidence but lacks examples, assets, creation, removal, selection, pause, stop, or persistence, the skill edits the current file and omits unavailable task-specific operations.
+- [ ] Missing optional tools narrow the requested workflow and final report without blocking unrelated supported work.
+
+### Runtime verification unavailable
+
+- [ ] With Contract 1.1 and existing-file editing but without `run_preview` or `get_diagnostics`, the skill explains that only a source edit is possible and requests explicit acceptance before mutation.
+- [ ] Without that acceptance, it makes no mutation.
+- [ ] With acceptance, it performs only the revision-safe source edit and makes no build, runtime, visual, or gameplay claim.
+
+### Restrictive contract and contradictory claims
+
+- [ ] An absent, malformed, Contract 1.0, or different-major contract permits available inspection but blocks every mutation even when mutation tools are advertised.
+- [ ] A capability map that claims editing or verification cannot override a missing tool or a schema without the required revision guards.
+- [ ] The bundled static reference is used only for connection and failure guidance; it never becomes a replacement mutation contract.
 
 ## Success Criteria
 
-- [ ] The requested source is present after a revision-safe replacement or supported creation.
-- [ ] The page-owned guide was consulted, the requested example switch used an exact returned key, and all later calls use the replacement project's revision.
-- [ ] The requested sprite and sound use exact Asset Brew loader code, with no fabricated catalog metadata, path, URL, or asset mutation.
-- [ ] The final run has available diagnostics and available same-run console capture with no current errors; incomplete capture is disclosed.
-- [ ] Runtime inspection, intent-preserving persistence behavior, and final project metadata all refer to the intended project/run.
-- [ ] Verification claims match the available evidence.
-- [ ] No separate MCP server, bridge credential, unadvertised project identifier, or unrelated local project is introduced.
+- [ ] The requested source is present after a revision-safe mutation permitted by the live contract and capability profile.
+- [ ] Focused page references were fetched selectively and every actual call used a currently advertised tool and compatible schema.
+- [ ] Asset loader code and project metadata were not fabricated.
+- [ ] Verification and persistence claims match the exact tools and evidence available for the intended project and run.
+- [ ] Source-only editing occurs only after explicit acceptance and is reported without runtime claims.
+- [ ] No separate MCP server, fallback project, unadvertised identifier, inferred contract, or unsupported operation is introduced.
 
 ## Anti-patterns
 
-- Starting or configuring a separate stdio MCP bridge instead of using the page-advertised tools.
-- Reusing a stale revision after a conflict or replacing a truncated read.
-- Opening an example when the user did not request another starting point, or setting `discardUnsavedChanges: true` without explicit approval.
-- Claiming gameplay works from diagnostics and an initial screenshot alone.
-- Omitting `expectedProjectRevision`, combining mutations with preview execution, or checking console output by timestamp instead of `runId`.
-- Fabricating Asset Brew URLs or loader functions instead of using the returned code.
-- Claiming WebMCP created a project with chosen metadata, selected an arbitrary saved project, renamed or exported a project, or uploaded assets.
+- Treating a tool count or capability claim as stronger than the actual advertised tools and schemas.
+- Mutating through an absent, older, malformed, or unknown-major contract.
+- Reusing stale revisions, replacing a truncated read, or combining mutation with preview execution.
+- Opening an example without the user's request or discarding unsaved work without explicit approval.
+- Claiming gameplay works from diagnostics, shallow inspection, or an initial screenshot alone.
+- Fabricating Asset Brew data or claiming saved-project selection, rename, export, or asset upload.

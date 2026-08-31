@@ -27,20 +27,31 @@ npx skills add rinesh/game-creator -a antigravity
 
 KAPLAY work is owned by the separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground). Kaplayground's page-owned WebMCP tools remain usable without either plugin, while its optional plugin adds KAPLAY-specific orchestration and verification guidance without granting additional tools or permissions. This repository aggregates that plugin through its Codex marketplace metadata and does not bundle a copy.
 
-Add the aggregate Codex marketplace with:
+Add the aggregate Codex marketplace with the refreshable aggregate channel on
+`main`, which may repin a newer validated Kaplayground release:
 
 ```bash
 codex plugin marketplace add rinesh/game-creator --ref main
 ```
 
-Alternatively, add the canonical marketplace directly:
+Refresh the aggregate later with:
+
+```bash
+codex plugin marketplace upgrade game-creator
+```
+
+Alternatively, install the canonical marketplace directly at its immutable
+1.5.0 release:
 
 ```bash
 codex plugin marketplace add rinesh/kaplayground --ref kaplayground-plugin-v1.5.0
 ```
 
-Choose one marketplace source and do not install the plugin from both, because
-both sources register the same `kaplayground` plugin and `kaplay` skill.
+That tag is frozen and will remain on 1.5.0. Choose one marketplace source and
+do not install the plugin from both, because both sources register the same
+`kaplayground` plugin and `kaplay` skill. For ChatGPT workspace imports,
+configure plugin installation and authentication in Workspace settings;
+repository policy fields do not override workspace policy.
 
 ## Quick Start
 

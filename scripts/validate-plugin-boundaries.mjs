@@ -6,9 +6,12 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const kaplaygroundPluginSha = "c70d10d26ce6134a898c3ce06c7bf04cdc641738";
-const kaplaygroundPluginTag = "kaplayground-plugin-v1.5.0";
+const kaplaygroundPluginVersion = "1.5.0";
+const kaplaygroundPluginTag = `kaplayground-plugin-v${kaplaygroundPluginVersion}`;
 const aggregateMarketplaceCommand =
   "codex plugin marketplace add rinesh/game-creator --ref main";
+const aggregateMarketplaceUpgradeCommand =
+  "codex plugin marketplace upgrade game-creator";
 const directMarketplaceCommand =
   `codex plugin marketplace add rinesh/kaplayground --ref ${kaplaygroundPluginTag}`;
 const failures = [];
@@ -61,6 +64,13 @@ const aggregateEntry = codexMarketplace.plugins?.find(
   (entry) => entry.name === "kaplayground",
 );
 check(Boolean(aggregateEntry), "Codex marketplace must advertise kaplayground");
+const unsupportedAggregateFields = Object.keys(aggregateEntry ?? {}).filter(
+  (field) => !["name", "source", "policy", "category"].includes(field),
+);
+check(
+  unsupportedAggregateFields.length === 0,
+  `Kaplayground aggregate entry has unsupported fallback fields: ${unsupportedAggregateFields.join(", ")}`,
+);
 const aggregateSource = aggregateEntry?.source;
 check(
   aggregateSource?.source === "git-subdir" &&
@@ -115,8 +125,15 @@ check(
 );
 check(
   readme.includes(aggregateMarketplaceCommand) &&
+    readme.includes(aggregateMarketplaceUpgradeCommand) &&
     readme.includes(directMarketplaceCommand),
   "README must document both aggregate and direct marketplace commands",
+);
+check(
+  readme.includes("refreshable aggregate channel") &&
+    readme.includes("tag is frozen") &&
+    readme.includes("repository policy fields do not override workspace policy"),
+  "README must distinguish the update channel, frozen tag, and ChatGPT workspace policy",
 );
 check(
   readme.includes("Choose one marketplace source") &&

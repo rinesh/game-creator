@@ -1,0 +1,48 @@
+name: Validate plugin ownership boundaries
+
+on:
+  push:
+    paths:
+      - ".github/workflows/validate-plugin-boundaries.yml"
+      - ".agents/plugins/marketplace.json"
+      - ".claude-plugin/**"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - "agents/game-creator.md"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/validate-plugin-boundaries.mjs"
+      - "skills/make-game/SKILL.md"
+      - "skills/quick-game/SKILL.md"
+      - "tests/trigger-*.txt"
+      - "tests/trigger-tests.md"
+  pull_request:
+    paths:
+      - ".github/workflows/validate-plugin-boundaries.yml"
+      - ".agents/plugins/marketplace.json"
+      - ".claude-plugin/**"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - "agents/game-creator.md"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/validate-plugin-boundaries.mjs"
+      - "skills/make-game/SKILL.md"
+      - "skills/quick-game/SKILL.md"
+      - "tests/trigger-*.txt"
+      - "tests/trigger-tests.md"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test

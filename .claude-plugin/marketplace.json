@@ -4,15 +4,15 @@
     "name": "OpusGameLabs"
   },
   "metadata": {
-    "description": "Build and ship Phaser or Three.js games, or create and verify KAPLAY games through the page-defined WebMCP tools in Kaplayground.",
-    "version": "1.4.2"
+    "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games.",
+    "version": "1.5.0"
   },
   "plugins": [
     {
       "name": "game-creator",
       "source": "./",
-      "description": "Build and ship Phaser or Three.js games. Create and verify KAPLAY games through Kaplayground browser WebMCP.",
-      "version": "1.4.2",
+      "description": "Build, improve, test, deploy, and monetize Phaser or Three.js browser games.",
+      "version": "1.5.0",
       "author": {
         "name": "OpusGameLabs"
       },
@@ -24,9 +24,6 @@
         "gamedev",
         "threejs",
         "phaser",
-        "kaplay",
-        "kaplayground",
-        "webmcp",
         "browser",
         "3d",
         "2d",

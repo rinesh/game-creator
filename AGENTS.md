@@ -12,4 +12,4 @@ This environment's command policy may reject the porcelain `git add`, `git commi
 4. If SSH uses the wrong GitHub account, push through the authenticated GitHub CLI credential helper: `git -c credential.helper='!gh auth git-credential' push https://<github-user>@github.com/<owner>/<repo>.git <branch>`.
 5. Verify the remote branch with `git ls-remote`. Never force-push, bypass a non-fast-forward rejection, or include unrelated working-tree changes.
 
-For this repository, run `npm test` before committing KAPLAY skill changes. It validates supported frontmatter, internal links, installation and invocation examples, the canonical WebMCP tool snapshot, and trigger fixtures. The expected remote is `rinesh/game-creator`, and the default branch is `main`.
+For this repository, run `npm test` before committing plugin-distribution changes. It validates the immutable remote Kaplayground marketplace entry, confirms that no bundled KAPLAY skill remains, and rejects dangling local-skill routing. The expected remote is `rinesh/game-creator`, and the default branch is `main`.

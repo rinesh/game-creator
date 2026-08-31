@@ -3,8 +3,8 @@
     "gh-pages": "^6.3.0"
   },
   "name": "game-creator",
-  "version": "1.4.2",
-  "description": "The game studio for the agent internet. Build, monetize, and ship Phaser and Three.js games, or create and verify KAPLAY games through Kaplayground browser WebMCP.",
+  "version": "1.5.0",
+  "description": "The game studio for the agent internet. Build, monetize, and ship Phaser and Three.js browser games.",
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -18,8 +18,8 @@
     "sharp": "^0.34.5"
   },
   "scripts": {
-    "test": "npm run test:skills",
-    "test:skills": "node scripts/validate-kaplay-skill.mjs",
+    "test": "npm run test:boundaries",
+    "test:boundaries": "node scripts/validate-plugin-boundaries.mjs",
     "build:site": "node site/build.js",
     "build:gallery": "node site/build.js",
     "capture:thumbnails": "node site/capture-screenshots.js"

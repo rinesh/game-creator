@@ -17,7 +17,12 @@ explain how Docker containers work
 set up a PostgreSQL database
 create a Kubernetes deployment
 
-# Informational KAPLAY request (no live game work)
+# KAPLAY requests belong to the separate Kaplayground plugin
+build a coin collector in KAPLAY
+use rinesh/kaplayground WebMCP to edit the current game
+make a platformer in the open Kaplayground project
+fix the current Kaplayground preview
+iterate on this KAPLAY game with the page-defined browser tools
 what is KAPLAY
 change the WebMCP adapter in rinesh/kaplayground
 

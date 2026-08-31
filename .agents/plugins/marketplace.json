@@ -1,0 +1,22 @@
+{
+  "name": "game-creator",
+  "interface": {
+    "displayName": "Game Creator"
+  },
+  "plugins": [
+    {
+      "name": "kaplayground",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/rinesh/kaplayground.git",
+        "path": "./plugins/kaplayground",
+        "sha": "c70d10d26ce6134a898c3ce06c7bf04cdc641738"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
+    }
+  ]
+}

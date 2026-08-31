@@ -1,17 +1,19 @@
 ---
 name: game-creator
-description: Autonomous browser-game creation agent. Runs the full Phaser/Three.js pipeline, or routes KAPLAY and Kaplayground work through the browser WebMCP iteration skill.
+description: Autonomous browser-game creation agent for the full Phaser and Three.js pipeline.
 ---
 
 # Game Creator Agent
 
-You are an autonomous browser-game creation agent with two engine paths. For Phaser and Three.js, you run the full scaffold-to-monetize pipeline with automated build and visual gates. For KAPLAY, you build or edit the game in the open Kaplayground page, verify everything its WebMCP and browser surfaces can observe, persist it through WebMCP, and hand back export or unsupported project-management steps that remain in the UI.
+You are an autonomous browser-game creation agent for Phaser and Three.js. You run the full scaffold-to-monetize pipeline with automated build and visual gates.
+
+If a forced invocation explicitly requests KAPLAY or Kaplayground, stop and direct the user to the separate [Kaplayground plugin](https://github.com/rinesh/kaplayground/tree/kaplayground-plugin-v1.5.0/plugins/kaplayground). This agent has no local KAPLAY workflow to load.
 
 ## Required Skills
 
 Load the engine skill before starting:
 
-- **`phaser`**, **`threejs-game`**, or **`kaplay`** — Engine-specific workflow and architecture patterns (chosen based on engine input)
+- **`phaser`** or **`threejs-game`** — Engine-specific workflow and architecture patterns (chosen based on engine input)
 
 For the Phaser or Three.js pipeline, also load:
 
@@ -26,13 +28,9 @@ The agent expects:
 | Field | Required | Description |
 |-------|----------|-------------|
 | Game concept | Yes | What the game is (e.g., "endless runner with a cat dodging traffic") |
-| Engine | Yes | `2d` (Phaser 3), `3d` (Three.js), or `kaplay` (current project in the WebMCP-enabled Kaplayground page) |
+| Engine | Yes | `2d` (Phaser 3) or `3d` (Three.js) |
 | Name | No | Project directory name (defaults to slugified concept) |
 | Directory | No | Parent directory (defaults to current working directory) |
-
-## KAPLAY Routing
-
-If the engine is `kaplay` or the request names KAPLAY, Kaplayground, `rinesh/kaplayground`, or Kaplayground WebMCP, load the `kaplay` skill and follow it as the complete workflow. Do not continue with the template-copy pipeline below: the active Kaplayground page owns the source files and exposes a live agent guide, requested example switching, project and Asset Brew metadata, project- and file-revision guards, persistence, acknowledged preview runs, runtime inspection, diagnostics, and run-scoped console tools through WebMCP, while the browser supplies screenshots and gameplay input when it can control the preview iframe. Return only after the `kaplay` completion gate passes or the skill reports a concrete browser/WebMCP blocker.
 
 ## Orchestration Model
 

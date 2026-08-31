@@ -83,13 +83,6 @@ make a fast prototype
 just get something playable
 quick 2d platformer
 
-# kaplay triggers
-build a coin collector in KAPLAY
-use rinesh/kaplayground WebMCP to edit the current game
-make a platformer in the open Kaplayground project
-fix the current Kaplayground preview
-iterate on this KAPLAY game with the page-defined browser tools
-
 # record-promo triggers
 record a video of my game
 make a promo for my game
